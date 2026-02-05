@@ -91,12 +91,37 @@ Some examples :
 ## File Structure
 The **AnglerEngine** file structure, follows principle mostly used in web and C :
 
-| Element                   	 	| Convention   	| Example                               |
-|-----------------------------------|---------------|---------------------------------------|
-| Directory 						| kebab-case  	| `my-directory`           				|
-| File (default if no conventions)   | kebab-case  	| `my-file.txt`          				|
-| Header file (default if no conventions)   | kebab-case  	| `my-header.h`          		|
-| CPP file (default if no conventions)   | kebab-case  		| `my-header.cpp`          		|
+| Element                   	 			| Convention   	| Example							|
+|-------------------------------------------|---------------|-----------------------------------|
+| Directory 								| kebab-case  	| `my-directory`					|
+| File (default if no conventions)  		| kebab-case  	| `my-file.txt`						|
+| Header file (default if no conventions)   | kebab-case  	| `my-header.h`						|
+| CPP file (default if no conventions)   	| kebab-case  	| `my-header.cpp`					|
+| Resource file (textures, shaders, etc.)   | kebab-case  	| `my-texture.png`					|
+
+Architecture schema :
+
+```
+.
+├── .gitignore
+├── CONVENTIONS.md
+├── src
+│   ├── common
+│	│		  └── ...
+│   ├── engine
+│	│		  └── ...
+│   ├── render
+│	│		  └── ...
+│   └── sandbox
+│	 		  └── ...
+│
+├── config
+│   └── settings.json
+└── bin
+    ├── SolutionGenerator.exe
+    ├── make.bat
+    └── clear.bat
+```
 
 ## Consequences
 Any team member or contributor who does not respect the naming conventions will have their PR rejected until the mistake is corrected.
