@@ -104,6 +104,7 @@ Architecture schema :
 ```
 .
 ├── .gitignore
+├── LICENCE
 ├── CONVENTIONS.md
 ├── src
 │   ├── common
