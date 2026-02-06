@@ -15,12 +15,15 @@ struct Pso
 
 struct GraphicsState
 {
-	Pso& pso;
+private :
+	Pso* pso;
 
-	// TODO : Add ConstantBuffers
+	// ConstantBuffers for the next draw
+	std::vector<dynamicsUploadBuffer*> constantBuffers;
 
-	// All texture will be find here
-	ID3D12DescriptorHeap* textureHeap;
+	// All textures and samplers will be find here
+	//GraphicsResourceManager resourceManager;
+	ID3D12DescriptorHeap* samplerHeap;
 
 	// All the data needed about the renderTarget
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle;
@@ -33,8 +36,8 @@ struct GraphicsState
 	ID3D12Resource* depthStencilBuffer;
 
 	//Matrix given to the shader
-	DirectX::XMFLOAT4X4 viewMatrix;
-	DirectX::XMFLOAT4X4 projMatrix;
+	dynamicUploadBuffer* viewMatrix;
+	dynamicUploadBuffer* projMatrix;
 
 	// DirectX12 Command Interface
 	ID3D12CommandQueue* commandQueue;
@@ -56,27 +59,45 @@ struct GraphicsState
 	GraphicsState();
 
 	~GraphicsState();
-private :
-	// Dynamic Buffer To upload viewMatrix and projMatrix
-};
 
+	// Dynamic Buffer To upload viewMatrix and projMatrix
+	bool isDepthEnabled = false;
+	bool isDrawingStarted = false;
+
+	friend class Graphics;
+};
 
 
 class Graphics
 {
 public :
-	static void DrawMesh(); // Take a Mesh* mesh, XMFLOAT4X4* world
-	static void DrawMeshInstanced(); // Take a Mesh* mesh, XMFLOAT4X4* worlds
+	static void DrawMesh(); // Take a Geometry* mesh, XMFLOAT4X4* world
+	static void DrawMeshInstanced(); // Take a Geometry* mesh, XMFLOAT4X4* worlds
 	//static void DrawText(); // TODO
 	//static void DrawSprite(); // TODO
+
 	static void SetRenderTarget(); // SetRenderTarget, Viewport and ScissorRect
-	static void SetPipelineStateObject(); // SetPso
-	static void SetConstantBuffers(int index/*, GraphicsBuffer(->UploadBuffer)* buffer */ ); // ConstantBufferList
-	static void SetView(DirectX::XMFLOAT4X4 matrix); // Set ViewMatrix
-	static void SetProj(DirectX::XMFLOAT4X4); // Set ProjMatrix
-	static void BeginDrawing(); // Begin Drawing with actual parameters
-	static void EndDrawing(); // End Drawing in global
+	static void SetPipelineStateObject(Pso* pso); // SetPso
+	static void SetConstantBuffers(int index/*, GraphicsUploadBuffer* buffer*/ ); // ConstantBufferList
+	static void SetViewBuffer(dynamicUploadBuffer* matrix); // Set ViewMatrix
+	static void SetProjBuffer(dynamicUploadBuffer* matrix); // Set ProjMatrix
+	static void SetDepthState(bool isEnabled); // Set ProjMatrix
+
+	static void BeginDrawing(); // Begin Drawing
+	static void EndDrawing(); // End Drawing
+	static void ExecuteCommandList();
+
+	static UINT GetRtvDescriptorSize();
+	static UINT GetDsvDescriptorSize();
+	static UINT GetCbvSrvUavDescriptorSize();
+
+	static ID3D12Device* GetDevice();
+	static IDXGIFactory4* GetFactory();
+	static ID3D12CommandList* GetCommandList();
+	//static GraphicsResourceManager* GetGraphicsResourceManager();
+
 private :
+	static void AddConstantBufferToCommandList();
 	static void FlushCommandQueue();
 };
 
