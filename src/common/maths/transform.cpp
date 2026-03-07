@@ -3,8 +3,8 @@
 
 using namespace DirectX;
 
-XMFLOAT4 eulerToQuaternion(const XMFLOAT3& euler) {
-    XMVECTOR localDeltaEuler = XMLoadFloat3(&euler);
+XMFLOAT4 eulerToQuaternion(const XMFLOAT3& _euler) {
+    XMVECTOR localDeltaEuler = XMLoadFloat3(&_euler);
     XMVECTOR vect = XMQuaternionRotationRollPitchYawFromVector(localDeltaEuler);
     XMFLOAT4 quat;
     XMStoreFloat4(&quat, vect);
@@ -35,8 +35,8 @@ void Transform::setDirty() {
     m_isDirty = true;
 }
 
-void Transform::setParent(Transform* newParent) {
-    if (m_parent == newParent) 
+void Transform::setParent(Transform* _parent) {
+    if (m_parent == _parent)
         return;
 
     if (m_parent) {
@@ -44,7 +44,7 @@ void Transform::setParent(Transform* newParent) {
         c.erase(std::find(c.begin(), c.end(), this));
     }
 
-    m_parent = newParent;
+    m_parent = _parent;
 
     if (m_parent) 
         m_parent->m_childrens.push_back(this);
@@ -52,22 +52,22 @@ void Transform::setParent(Transform* newParent) {
     setDirty();
 }
 
-void Transform::setPosition(const XMFLOAT3& pos) {
+void Transform::setPosition(const XMFLOAT3& _pos) {
     if (m_parent) {
         XMFLOAT4X4 parentWorld = m_parent->getWorldMatrix();
         XMMATRIX invParentWorld = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentWorld));
 
-        XMVECTOR localPos = XMVector3TransformCoord(XMLoadFloat3(&pos), invParentWorld);
+        XMVECTOR localPos = XMVector3TransformCoord(XMLoadFloat3(&_pos), invParentWorld);
         XMStoreFloat3(&m_localPosition, localPos);
     }
     else {
-        m_localPosition = pos;
+        m_localPosition = _pos;
     }
     setDirty();
 }
 
-void Transform::setRotation(const XMFLOAT4& quat) {
-    XMVECTOR worldQuat = XMQuaternionNormalize(XMLoadFloat4(&quat));
+void Transform::setRotation(const XMFLOAT4& _quat) {
+    XMVECTOR worldQuat = XMQuaternionNormalize(XMLoadFloat4(&_quat));
 
     if (m_parent) {
         XMFLOAT4 parentWorldRot = m_parent->getRotation();
@@ -81,49 +81,49 @@ void Transform::setRotation(const XMFLOAT4& quat) {
     setDirty();
 }
 
-void Transform::setRotation(const XMFLOAT3& euler) {
-    setRotation(eulerToQuaternion(euler));
+void Transform::setRotation(const XMFLOAT3& _euler) {
+    setRotation(eulerToQuaternion(_euler));
 }
 
-void Transform::setScale(const XMFLOAT3& scale) {
+void Transform::setScale(const XMFLOAT3& _scale) {
     if (m_parent) {
         XMFLOAT3 parentScale = m_parent->getScale();
-        XMVECTOR localScale = XMVectorDivide(XMLoadFloat3(&scale), XMLoadFloat3(&parentScale));
+        XMVECTOR localScale = XMVectorDivide(XMLoadFloat3(&_scale), XMLoadFloat3(&parentScale));
 
         XMStoreFloat3(&m_localScale, localScale);
     }
     else {
-        m_localScale = scale;
+        m_localScale = _scale;
     }
     setDirty();
 }
 
-void Transform::localTranslate(const XMFLOAT3& delta) {
-    XMVECTOR localDelta = XMLoadFloat3(&delta);
+void Transform::localTranslate(const XMFLOAT3& _delta) {
+    XMVECTOR localDelta = XMLoadFloat3(&_delta);
     XMVECTOR currentPos = XMLoadFloat3(&m_localPosition);
     XMStoreFloat3(&m_localPosition, XMVectorAdd(currentPos, localDelta));
     setDirty();
 }
 
-void Transform::localRotate(const XMFLOAT4& deltaQuat) {
-    XMVECTOR localDeltaQuat = XMLoadFloat4(&deltaQuat);
+void Transform::localRotate(const XMFLOAT4& _deltaQuat) {
+    XMVECTOR localDeltaQuat = XMLoadFloat4(&_deltaQuat);
     XMVECTOR currentRot = XMLoadFloat4(&m_localRotation);
     XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMQuaternionMultiply(localDeltaQuat, currentRot)));
     setDirty();
 }
 
-void Transform::localRotate(const XMFLOAT3& deltaEuler) {
-    localRotate(eulerToQuaternion(deltaEuler));
+void Transform::localRotate(const XMFLOAT3& _deltaEuler) {
+    localRotate(eulerToQuaternion(_deltaEuler));
 }
 
-void Transform::localScale(const XMFLOAT3& factor) {    
-    XMVECTOR localFactor = XMLoadFloat3(&factor);
+void Transform::localScale(const XMFLOAT3& _factor) {    
+    XMVECTOR localFactor = XMLoadFloat3(&_factor);
     XMVECTOR currentSca = XMLoadFloat3(&m_localScale);
     XMStoreFloat4(&m_localRotation, XMVectorMultiply(localFactor, currentSca));
     setDirty();
 }
 
-void Transform::setWorldTransform(const XMFLOAT3& pos, const XMFLOAT4& quat, const XMFLOAT3& scale) {
+void Transform::setWorldTransform(const XMFLOAT3& _pos, const XMFLOAT4& _quat, const XMFLOAT3& _scale) {
     if (m_parent) {
         XMFLOAT3 parentSca = m_parent->getScale();
         XMFLOAT4X4 parentWorld = m_parent->getWorldMatrix();
@@ -132,35 +132,35 @@ void Transform::setWorldTransform(const XMFLOAT3& pos, const XMFLOAT4& quat, con
         XMMATRIX invParentMat = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentWorld));
         XMVECTOR invParentRot = XMQuaternionInverse(XMLoadFloat4(&parentRot));
 
-        XMVECTOR lPos = XMVector3TransformCoord(XMLoadFloat3(&pos), invParentMat);
-        XMVECTOR lRot = XMQuaternionMultiply(XMQuaternionNormalize(XMLoadFloat4(&quat)), invParentRot);
-        XMVECTOR lSca = XMVectorDivide(XMLoadFloat3(&scale), XMLoadFloat3(&parentSca));
+        XMVECTOR lPos = XMVector3TransformCoord(XMLoadFloat3(&_pos), invParentMat);
+        XMVECTOR lRot = XMQuaternionMultiply(XMQuaternionNormalize(XMLoadFloat4(&_quat)), invParentRot);
+        XMVECTOR lSca = XMVectorDivide(XMLoadFloat3(&_scale), XMLoadFloat3(&parentSca));
 
         XMStoreFloat3(&m_localPosition, lPos);
         XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(lRot));
         XMStoreFloat3(&m_localScale, lSca);
     }
     else {
-        m_localPosition = pos;
-        m_localRotation = quat;
-        m_localScale = scale;
+        m_localPosition = _pos;
+        m_localRotation = _quat;
+        m_localScale = _scale;
     }
 
     setDirty();
 }
 
-void Transform::translate(const XMFLOAT3& delta) {
+void Transform::translate(const XMFLOAT3& _delta) {
     updateValues();
-    XMVECTOR newWorldPos = XMVectorAdd(XMLoadFloat3(&m_worldPosition), XMLoadFloat3(&delta));
+    XMVECTOR newWorldPos = XMVectorAdd(XMLoadFloat3(&m_worldPosition), XMLoadFloat3(&_delta));
     XMFLOAT3 res;
     XMStoreFloat3(&res, newWorldPos);
     setPosition(res);
 }
 
-void Transform::rotate(const XMFLOAT4& deltaQuat) {
+void Transform::rotate(const XMFLOAT4& _deltaQuat) {
     updateValues();
     XMVECTOR currentWorldRot = XMLoadFloat4(&m_worldRotation);
-    XMVECTOR delta = XMLoadFloat4(&deltaQuat);
+    XMVECTOR delta = XMLoadFloat4(&_deltaQuat);
     XMVECTOR newRot = XMQuaternionMultiply(delta, currentWorldRot);
 
     XMFLOAT4 res;
@@ -168,34 +168,34 @@ void Transform::rotate(const XMFLOAT4& deltaQuat) {
     setRotation(res);
 }
 
-void Transform::rotate(const XMFLOAT3& deltaEuler) {
-    rotate(eulerToQuaternion(deltaEuler));
+void Transform::rotate(const XMFLOAT3& _deltaEuler) {
+    rotate(eulerToQuaternion(_deltaEuler));
 }
 
-void Transform::scale(const XMFLOAT3& factor) {
+void Transform::scale(const XMFLOAT3& _factor) {
     updateValues();
-    XMVECTOR newWorldScale = XMVectorMultiply(XMLoadFloat3(&m_worldScale), XMLoadFloat3(&factor));
+    XMVECTOR newWorldScale = XMVectorMultiply(XMLoadFloat3(&m_worldScale), XMLoadFloat3(&_factor));
     XMFLOAT3 res;
     XMStoreFloat3(&res, newWorldScale);
     setScale(res);
 }
 
-void Transform::setLocalPosition(const XMFLOAT3& pos) {
-    m_localPosition = pos; 
+void Transform::setLocalPosition(const XMFLOAT3& _pos) {
+    m_localPosition = _pos; 
     setDirty();
 }
 
-void Transform::setLocalRotation(const XMFLOAT4& quat) { 
-    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMLoadFloat4(&quat)));
+void Transform::setLocalRotation(const XMFLOAT4& _quat) { 
+    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMLoadFloat4(&_quat)));
     setDirty();
 }
 
-void Transform::setLocalRotation(const XMFLOAT3& euler) {
-    setLocalRotation(eulerToQuaternion(euler));
+void Transform::setLocalRotation(const XMFLOAT3& _euler) {
+    setLocalRotation(eulerToQuaternion(_euler));
 }
 
-void Transform::setLocalScale(const XMFLOAT3& scale) { 
-    m_localScale = scale; 
+void Transform::setLocalScale(const XMFLOAT3& _scale) { 
+    m_localScale = _scale; 
     setDirty(); 
 }
 
