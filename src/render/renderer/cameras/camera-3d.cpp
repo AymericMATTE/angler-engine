@@ -182,10 +182,6 @@ namespace angler {
         return m_transform.getLocalScale();
     }
 
-    DirectX::XMFLOAT4X4 Camera3D::getLocalMatrix() {
-        return m_transform.getLocalMatrix();
-    }
-
     DirectX::XMFLOAT4X4 Camera3D::getWorldMatrix() {
         return m_transform.getWorldMatrix();
     }

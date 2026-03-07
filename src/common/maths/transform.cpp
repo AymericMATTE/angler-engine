@@ -3,254 +3,272 @@
 
 using namespace DirectX;
 
-static XMVECTOR NormalizeQuat(const XMFLOAT4& _quaternion) {
-    return XMQuaternionNormalize(XMLoadFloat4(&_quaternion));
+XMFLOAT4 eulerToQuaternion(const XMFLOAT3& euler) {
+    XMVECTOR localDeltaEuler = XMLoadFloat3(&euler);
+    XMVECTOR vect = XMQuaternionRotationRollPitchYawFromVector(localDeltaEuler);
+    XMFLOAT4 quat;
+    XMStoreFloat4(&quat, vect);
+    return quat;
 }
 
-
-void Transform::setParent(Transform* _parent) {
-    m_parent = _parent;
-    markDirty();
+Transform::Transform() {
+    XMStoreFloat4x4(&m_worldMatrix, XMMatrixIdentity());
 }
 
-Transform* Transform::getParent() const {
-    return m_parent;
+void Transform::setDirty() {
+    if (m_isDirty) 
+        return;
+
+    m_isDirty = true;
 }
 
-void Transform::markDirty() {
-    m_localDirty = true;
-    m_worldDirty = true;
+void Transform::setParent(Transform* newParent) {
+    if (m_parent == newParent) 
+        return;
+
+    m_parent = newParent;
+
+    setDirty();
 }
 
-void Transform::setLocalPosition(const XMFLOAT3& _position) {
-    m_localPosition = _position;
-
-    // Set pos in matrix
-    m_localMatrix._41 = m_localPosition.x;
-    m_localMatrix._42 = m_localPosition.y;
-    m_localMatrix._43 = m_localPosition.z;
-    markDirty();
-}
-
-void Transform::setLocalRotation(const XMFLOAT4& _rotation) {
-    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMLoadFloat4(&_rotation)));
-    markDirty();
-}
-
-void Transform::setLocalScale(const XMFLOAT3& _scale) {
-    m_localScale = _scale;
-    markDirty();
-}
-
-void Transform::localTranslate(const XMFLOAT3& _vector) {
-    m_localPosition.x += _vector.x;
-    m_localPosition.y += _vector.y;
-    m_localPosition.z += _vector.z;
-    markDirty();
-}
-
-void Transform::localRotate(const XMFLOAT4& _rotation) {
-    XMVECTOR current = XMLoadFloat4(&m_localRotation);
-    XMVECTOR delta   = NormalizeQuat(_rotation);
-    
-    XMVECTOR result = XMQuaternionMultiply(delta, current);
-
-    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(result));
-    markDirty();
-}
-
-void Transform::localRotate(const DirectX::XMFLOAT3& _delta) {
-    XMVECTOR euler = XMQuaternionRotationRollPitchYaw(_delta.x, _delta.y, _delta.z);
-    XMFLOAT4 quaternion;
-    XMStoreFloat4(&quaternion, euler);
-    localRotate(quaternion);
-}
-
-void Transform::localScale(const XMFLOAT3& _scale) {
-    m_localScale.x *= _scale.x;
-    m_localScale.y *= _scale.y;
-    m_localScale.z *= _scale.z;
-    markDirty();
-}
-
-void Transform::setPosition(const XMFLOAT3& _position) {
+void Transform::setPosition(const XMFLOAT3& pos) {
     if (m_parent) {
-        XMFLOAT4X4 worldParent = m_parent->getWorldMatrix();
-        XMMATRIX invParent = XMMatrixInverse(nullptr, XMLoadFloat4x4(&worldParent));
+        XMFLOAT4X4 parentWorld = m_parent->getWorldMatrix();
+        XMMATRIX invParentWorld = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentWorld));
 
-        XMVECTOR localPosition = XMVector3TransformCoord(XMLoadFloat3(&_position), invParent);
-        XMStoreFloat3(&m_localPosition, localPosition);
+        XMVECTOR localPos = XMVector3TransformCoord(XMLoadFloat3(&pos), invParentWorld);
+        XMStoreFloat3(&m_localPosition, localPos);
     }
-    else
-        m_localPosition = _position;
-    
-    // Set pos in matrix
-    m_localMatrix._41 = m_localPosition.x;
-    m_localMatrix._42 = m_localPosition.y;
-    m_localMatrix._43 = m_localPosition.z;
-    markDirty();
+    else {
+        m_localPosition = pos;
+    }
+    setDirty();
 }
 
-void Transform::setRotation(const XMFLOAT4& _rotation) {
-    XMVECTOR quaternion = NormalizeQuat(_rotation);
+void Transform::setRotation(const XMFLOAT4& quat) {
+    XMVECTOR worldQuat = XMQuaternionNormalize(XMLoadFloat4(&quat));
 
     if (m_parent) {
-        XMFLOAT4 quaternionParent = m_parent->getRotation();
-        XMVECTOR parentQuaternion = XMLoadFloat4(&quaternionParent);
-        XMVECTOR localQuaternion = XMQuaternionMultiply(XMQuaternionInverse(parentQuaternion), quaternion);
+        XMFLOAT4 parentWorldRot = m_parent->getRotation();
+        XMVECTOR localQuat = XMQuaternionMultiply(worldQuat, XMQuaternionInverse(XMLoadFloat4(&parentWorldRot)));
 
-        XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(localQuaternion));
+        XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(localQuat));
     }
-    else
-        XMStoreFloat4(&m_localRotation, quaternion);
-
-    markDirty();
+    else {
+        XMStoreFloat4(&m_localRotation, worldQuat);
+    }
+    setDirty();
 }
 
-void Transform::setRotation(const DirectX::XMFLOAT3& _rotation) {
-    XMVECTOR euler = XMQuaternionRotationRollPitchYaw(_rotation.x, _rotation.y, _rotation.z);
+void Transform::setRotation(const XMFLOAT3& euler) {
+    setRotation(eulerToQuaternion(euler));
+}
+
+void Transform::setScale(const XMFLOAT3& scale) {
+    if (m_parent) {
+        XMFLOAT3 parentScale = m_parent->getScale();
+        XMVECTOR localScale = XMVectorDivide(XMLoadFloat3(&scale), XMLoadFloat3(&parentScale));
+
+        XMStoreFloat3(&m_localScale, localScale);
+    }
+    else {
+        m_localScale = scale;
+    }
+    setDirty();
+}
+
+void Transform::localTranslate(const XMFLOAT3& delta) {
+    XMVECTOR localDelta = XMLoadFloat3(&delta);
+    XMVECTOR currentPos = XMLoadFloat3(&m_localPosition);
+    XMStoreFloat3(&m_localPosition, XMVectorAdd(currentPos, localDelta));
+    setDirty();
+}
+
+void Transform::localRotate(const XMFLOAT4& deltaQuat) {
+    XMVECTOR localDeltaQuat = XMLoadFloat4(&deltaQuat);
+    XMVECTOR currentRot = XMLoadFloat4(&m_localRotation);
+    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMQuaternionMultiply(localDeltaQuat, currentRot)));
+    setDirty();
+}
+
+void Transform::localRotate(const XMFLOAT3& deltaEuler) {
+    localRotate(eulerToQuaternion(deltaEuler));
+}
+
+void Transform::localScale(const XMFLOAT3& factor) {    
+    XMVECTOR localFactor = XMLoadFloat3(&factor);
+    XMVECTOR currentSca = XMLoadFloat3(&m_localScale);
+    XMStoreFloat4(&m_localRotation, XMVectorMultiply(localFactor, currentSca));
+    setDirty();
+}
+
+void Transform::setWorldTransform(const XMFLOAT3& pos, const XMFLOAT4& quat, const XMFLOAT3& scale) {
+    if (m_parent) {
+        XMFLOAT3 parentSca = m_parent->getScale();
+        XMFLOAT4X4 parentWorld = m_parent->getWorldMatrix();
+        XMFLOAT4 parentRot = m_parent->getRotation();
+
+        XMMATRIX invParentMat = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentWorld));
+        XMVECTOR invParentRot = XMQuaternionInverse(XMLoadFloat4(&parentRot));
+
+        XMVECTOR lPos = XMVector3TransformCoord(XMLoadFloat3(&pos), invParentMat);
+        XMVECTOR lRot = XMQuaternionMultiply(XMQuaternionNormalize(XMLoadFloat4(&quat)), invParentRot);
+        XMVECTOR lSca = XMVectorDivide(XMLoadFloat3(&scale), XMLoadFloat3(&parentSca));
+
+        XMStoreFloat3(&m_localPosition, lPos);
+        XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(lRot));
+        XMStoreFloat3(&m_localScale, lSca);
+    }
+    else {
+        m_localPosition = pos;
+        m_localRotation = quat;
+        m_localScale = scale;
+    }
+
+    setDirty();
+}
+
+void Transform::translate(const XMFLOAT3& delta) {
+    updateValues();
+    XMVECTOR newWorldPos = XMVectorAdd(XMLoadFloat3(&m_worldPosition), XMLoadFloat3(&delta));
+    XMFLOAT3 res;
+    XMStoreFloat3(&res, newWorldPos);
+    setPosition(res);
+}
+
+void Transform::rotate(const XMFLOAT4& deltaQuat) {
+    updateValues();
+    XMVECTOR currentWorldRot = XMLoadFloat4(&m_worldRotation);
+    XMVECTOR delta = XMLoadFloat4(&deltaQuat);
+    XMVECTOR newRot = XMQuaternionMultiply(delta, currentWorldRot);
+
+    XMFLOAT4 res;
+    XMStoreFloat4(&res, XMQuaternionNormalize(newRot));
+    setRotation(res);
+}
+
+void Transform::rotate(const XMFLOAT3& deltaEuler) {
+    rotate(eulerToQuaternion(deltaEuler));
+}
+
+void Transform::scale(const XMFLOAT3& factor) {
+    updateValues();
+    XMVECTOR newWorldScale = XMVectorMultiply(XMLoadFloat3(&m_worldScale), XMLoadFloat3(&factor));
+    XMFLOAT3 res;
+    XMStoreFloat3(&res, newWorldScale);
+    setScale(res);
+}
+
+void Transform::setLocalPosition(const XMFLOAT3& pos) {
+    m_localPosition = pos; 
+    setDirty();
+}
+
+void Transform::setLocalRotation(const XMFLOAT4& quat) { 
+    XMStoreFloat4(&m_localRotation, XMQuaternionNormalize(XMLoadFloat4(&quat)));
+    setDirty();
+}
+
+void Transform::setLocalRotation(const XMFLOAT3& euler) {
+    setLocalRotation(eulerToQuaternion(euler));
+}
+
+void Transform::setLocalScale(const XMFLOAT3& scale) { 
+    m_localScale = scale; 
+    setDirty(); 
+}
+
+void Transform::lookAt(const XMFLOAT3& _target, const XMFLOAT3& _up) {
+    XMFLOAT3 worldPosition = getPosition();
+    XMVECTOR direction = XMLoadFloat3(&_target) - XMLoadFloat3(&worldPosition);
+    lookTo(XMFLOAT3{ XMVectorGetX(direction), XMVectorGetY(direction), XMVectorGetZ(direction) }, _up);
+}
+
+void Transform::lookTo(const XMFLOAT3& _direction, const XMFLOAT3& _up) {
+    XMMATRIX view = XMMatrixLookToLH(XMVectorZero(), XMVector3Normalize(XMLoadFloat3(&_direction)), XMLoadFloat3(&_up));
+    XMMATRIX invView = XMMatrixInverse(nullptr, view);
+    XMVECTOR rotation = XMQuaternionRotationMatrix(invView);
     XMFLOAT4 quaternion;
-    XMStoreFloat4(&quaternion, euler);
+    XMStoreFloat4(&quaternion, XMQuaternionNormalize(rotation));
     setRotation(quaternion);
 }
 
-void Transform::setScale(const XMFLOAT3& _scale) {
-    if (m_parent) {
-        XMFLOAT3 parentScale = m_parent->getScale();
-        m_localScale = { _scale.x / parentScale.x, _scale.y / parentScale.y, _scale.z / parentScale.z};
-    }
-    else
-        m_localScale = _scale;
+void Transform::updateValues() {
+    if (!m_isDirty && m_parent == nullptr)
+        return;
 
-    markDirty();
-}
+    XMVECTOR lPos = XMLoadFloat3(&m_localPosition);
+    XMVECTOR lRot = XMLoadFloat4(&m_localRotation);
+    XMVECTOR lSca = XMLoadFloat3(&m_localScale);
 
-void Transform::translate(const XMFLOAT3& _vector) {
-    XMFLOAT3 worldPosition = getPosition();
-    worldPosition.x += _vector.x;
-    worldPosition.y += _vector.y;
-    worldPosition.z += _vector.z;
-    setPosition(worldPosition);
-}
-
-void Transform::rotate(const XMFLOAT4& _rotation) {
-    XMFLOAT4 worldRotation = getRotation();
-    XMVECTOR worldQuaternion = XMQuaternionMultiply(XMLoadFloat4(&worldRotation), NormalizeQuat(_rotation));
-
-    XMFLOAT4 rotation;
-    XMStoreFloat4(&rotation, worldQuaternion);
-    setRotation(rotation);
-}
-
-void Transform::rotate(const DirectX::XMFLOAT3& _delta) {
-    XMVECTOR euler = XMQuaternionRotationRollPitchYaw(_delta.x, _delta.y, _delta.z);
-    XMFLOAT4 quaternion;
-    XMStoreFloat4(&quaternion, euler);
-    rotate(quaternion);
-}
-
-void Transform::scale(const XMFLOAT3& _scale) {
-    XMFLOAT3 worldScale = getScale();
-    worldScale.x *= _scale.x;
-    worldScale.y *= _scale.y;
-    worldScale.z *= _scale.z;
-    setScale(worldScale);
-}
-
-
-void Transform::updateLocalMatrix() {
-    XMMATRIX localMatrix = 
-        XMMatrixScalingFromVector(XMLoadFloat3(&m_localScale)) *
-        XMMatrixRotationQuaternion(XMLoadFloat4(&m_localRotation)) *
-        XMMatrixTranslationFromVector(XMLoadFloat3(&m_localPosition));
-
-    XMStoreFloat4x4(&m_localMatrix, localMatrix);
-    m_localDirty = false;
-}
-
-void Transform::updateWorldMatrix() {
-    if (m_localDirty)
-        updateLocalMatrix();
-
-    XMMATRIX local = XMLoadFloat4x4(&m_localMatrix);
+    XMMATRIX localMat = XMMatrixScalingFromVector(lSca) *
+        XMMatrixRotationQuaternion(lRot) *
+        XMMatrixTranslationFromVector(lPos);
 
     if (m_parent) {
-        XMFLOAT4X4 worldParent = m_parent->getWorldMatrix();
-        XMMATRIX parentWorldMatrix = XMLoadFloat4x4(&worldParent);
-        XMStoreFloat4x4(&m_worldMatrix, local * parentWorldMatrix);
+        XMFLOAT4X4 parentMat = m_parent->getWorldMatrix();
+        XMMATRIX worldMat = localMat * XMLoadFloat4x4(&parentMat);
+        XMStoreFloat4x4(&m_worldMatrix, worldMat);
+
+        XMStoreFloat3(&m_worldPosition, worldMat.r[3]);
+
+        XMFLOAT4 parentRot = m_parent->getRotation();
+        XMStoreFloat4(&m_worldRotation, XMQuaternionMultiply(lRot, XMLoadFloat4(&parentRot)));
+
+        XMFLOAT3 parentSca = m_parent->getScale();
+        XMStoreFloat3(&m_worldScale, XMVectorMultiply(lSca, XMLoadFloat3(&parentSca)));
     }
-    else
-        XMStoreFloat4x4(&m_worldMatrix, local);
+    else {
+        XMStoreFloat4x4(&m_worldMatrix, localMat);
+        m_worldPosition = m_localPosition;
+        m_worldRotation = m_localRotation;
+        m_worldScale = m_localScale;
+    }
 
-    XMVECTOR scale, rotation, translation;
-    XMMatrixDecompose(&scale, &rotation, &translation, XMLoadFloat4x4(&m_worldMatrix));
-
-    DirectX::XMStoreFloat4x4(&m_worldMatrix, DirectX::XMLoadFloat4x4(&m_worldMatrix));
-
-    XMStoreFloat3(&m_worldScale, scale);
-    XMStoreFloat4(&m_worldRotation, XMQuaternionNormalize(rotation));
-    XMStoreFloat3(&m_worldPosition, translation);
-
-    m_worldDirty = false;
-}
-
-XMFLOAT4X4 Transform::getLocalMatrix() {
-    if (m_localDirty)
-        updateLocalMatrix();
-
-    return m_localMatrix;
+    m_isDirty = false;
 }
 
 XMFLOAT4X4 Transform::getWorldMatrix() {
-    if (m_worldDirty || m_parent != nullptr)
-        updateWorldMatrix();
-
-    return m_worldMatrix;
+    updateValues(); 
+    return m_worldMatrix; 
 }
 
 XMFLOAT4X4 Transform::getTransposedWorldMatrix() {
-    if (m_worldDirty || m_parent != nullptr)
-        updateWorldMatrix();
-
-    XMFLOAT4X4 transposedMatrix;
-    XMStoreFloat4x4(&transposedMatrix, XMMatrixTranspose(XMLoadFloat4x4(&m_worldMatrix)));
-    return transposedMatrix;
+    updateValues();
+    
+    XMMATRIX matTransWorld = XMMatrixTranspose(XMLoadFloat4x4(&m_worldMatrix));
+    XMFLOAT4X4 transposedWorld;
+    XMStoreFloat4x4(&transposedWorld, matTransWorld);
+    return transposedWorld;
 }
 
-XMFLOAT3 Transform::getLocalPosition() const { 
-    return m_localPosition; 
-}
-XMFLOAT4 Transform::getLocalRotation() const {
-    return m_localRotation; 
-}
-XMFLOAT3 Transform::getLocalScale() const { 
-    return m_localScale; 
+XMFLOAT3 Transform::getPosition() { 
+    updateValues(); 
+    return m_worldPosition; 
 }
 
-XMFLOAT3 Transform::getPosition() {
-    if (m_worldDirty || m_parent != nullptr)
-        updateWorldMatrix();
-
-    return m_worldPosition;
+XMFLOAT4 Transform::getRotation() { 
+    updateValues(); 
+    return m_worldRotation; 
 }
 
-XMFLOAT4 Transform::getRotation() {
-    if (m_worldDirty || m_parent != nullptr)
-        updateWorldMatrix();
-
-    return m_worldRotation;
+XMFLOAT3 Transform::getScale() { 
+    updateValues(); 
+    return m_worldScale; 
 }
 
-XMFLOAT3 Transform::getScale() {
-    if (m_worldDirty || m_parent != nullptr)
-        updateWorldMatrix();
+XMFLOAT3 Transform::getForward() {
+    XMFLOAT4 rotation = getRotation();
+    XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, 1, 0), XMLoadFloat4(&rotation));
 
-    return m_worldScale;
+    XMFLOAT3 result;
+    XMStoreFloat3(&result, XMVector3Normalize(forward));
+    return result;
 }
 
 XMFLOAT3 Transform::getRight() {
     XMFLOAT4 rotation = getRotation();
-    XMVECTOR right = XMVector3Rotate(XMVectorSet(1, 0, 0, 0),XMLoadFloat4(&rotation));
+    XMVECTOR right = XMVector3Rotate(XMVectorSet(1, 0, 0, 0), XMLoadFloat4(&rotation));
 
     XMFLOAT3 result;
     XMStoreFloat3(&result, XMVector3Normalize(right));
@@ -264,31 +282,4 @@ XMFLOAT3 Transform::getUp() {
     XMFLOAT3 result;
     XMStoreFloat3(&result, XMVector3Normalize(up));
     return result;
-}
-
-XMFLOAT3 Transform::getForward() {
-    XMFLOAT4 rotation = getRotation();
-    XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, 1, 0),XMLoadFloat4(&rotation));
-
-    XMFLOAT3 result;
-    XMStoreFloat3(&result, XMVector3Normalize(forward));
-    return result;
-}
-
-void Transform::lookAt(const XMFLOAT3& _target, const XMFLOAT3& _up) {
-    XMFLOAT3 worldPosition = getPosition();
-    XMVECTOR direction = XMLoadFloat3(&_target) - XMLoadFloat3(&worldPosition);
-
-    lookTo( XMFLOAT3{XMVectorGetX(direction), XMVectorGetY(direction), XMVectorGetZ(direction)},_up);
-}
-
-void Transform::lookTo(const XMFLOAT3& _direction, const XMFLOAT3& _up) {
-    XMMATRIX view = XMMatrixLookToLH(XMVectorZero(), XMVector3Normalize(XMLoadFloat3(&_direction)), XMLoadFloat3(&_up));
-
-    XMMATRIX invView = XMMatrixInverse(nullptr, view);
-    XMVECTOR rotation = XMQuaternionRotationMatrix(invView);
-
-    XMFLOAT4 quaternion;
-    XMStoreFloat4(&quaternion, XMQuaternionNormalize(rotation));
-    setRotation(quaternion);
 }

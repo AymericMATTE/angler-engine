@@ -65,7 +65,6 @@ namespace angler {
         [[nodiscard]] DirectX::XMFLOAT4 getLocalRotation() const;
         [[nodiscard]] DirectX::XMFLOAT3 getLocalScale() const;
 
-        [[nodiscard]] DirectX::XMFLOAT4X4 getLocalMatrix();
         [[nodiscard]] DirectX::XMFLOAT4X4 getWorldMatrix();
 
         [[nodiscard]] DirectX::XMFLOAT3 getRight();

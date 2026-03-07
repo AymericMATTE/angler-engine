@@ -154,11 +154,6 @@ namespace angler {
         return m_transform.getLocalScale();
     }
     
-    DirectX::XMFLOAT4X4 TransformComponent::getLocalMatrix() {
-        updateParent();
-        return m_transform.getLocalMatrix();
-    }
-    
     DirectX::XMFLOAT4X4 TransformComponent::getWorldMatrix() {
         updateParent();
         return m_transform.getWorldMatrix();
