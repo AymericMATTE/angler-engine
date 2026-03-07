@@ -1,0 +1,3 @@
+base : 17 secs
+prealoccated vectors : 16secs
+chat-gpt optimisations : 5 secs

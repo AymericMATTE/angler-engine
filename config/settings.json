@@ -97,13 +97,38 @@
             "property-pch": true,
             "property-vcpkg": false,
             "property-window": true
+        },
+        "53895305-0B0A-31FD-38CD-3753310F1968": {
+            "config-debug": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "config-release": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "dependencies": [
+                "53413754-0BD6-1E0C-4264-65DF259514F1"
+            ],
+            "dependents": [],
+            "name": "game",
+            "property-lib": false,
+            "property-pch": true,
+            "property-vcpkg": false,
+            "property-window": true
         }
     },
+    
     "projects_name_to_guid": {
         "common": "52D877C7-52D1-5E22-3912-7B08208602DA",
         "engine": "53413754-0BD6-1E0C-4264-65DF259514F1",
         "render": "531A3F7F-4674-3614-5EE5-2DCF13AF1E28",
-        "sandbox": "53895305-0B0A-31FD-38CD-3753310F1961"
+        "sandbox": "53895305-0B0A-31FD-38CD-3753310F1961",
+        "game": "53895305-0B0A-31FD-38CD-3753310F1968"
     },
     "solution_guid": "518F6732-4AD8-4868-53A6-6DD0549105C0",
     "solution_name": "angler-engine",

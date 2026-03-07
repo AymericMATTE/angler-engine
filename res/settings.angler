@@ -1,0 +1,9 @@
+--- window settings --
+window_width = 1920
+window_height = 1080
+window_fullscreen = true
+
+-- renderer settings --
+vsync = true
+render_scale = 1.0
+anti_aliasing = NONE
