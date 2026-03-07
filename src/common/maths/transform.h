@@ -5,6 +5,7 @@
 struct Transform {
 public:
     Transform();
+    ~Transform();
 
     void setParent(Transform* newParent);
 
@@ -52,6 +53,7 @@ private:
     void updateValues();
 
     Transform* m_parent = nullptr;
+    std::vector<Transform*> m_childrens = {};
 
     DirectX::XMFLOAT3 m_localPosition = { 0.f, 0.f, 0.f };
     DirectX::XMFLOAT4 m_localRotation = { 0.f, 0.f, 0.f, 1.f };

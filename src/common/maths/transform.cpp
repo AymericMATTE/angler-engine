@@ -15,9 +15,22 @@ Transform::Transform() {
     XMStoreFloat4x4(&m_worldMatrix, XMMatrixIdentity());
 }
 
+Transform::~Transform() {
+    if (m_parent) {
+        auto& c = m_parent->m_childrens;
+        c.erase(std::find(c.begin(), c.end(), this));
+    }
+
+    for (auto* child : m_childrens)
+        child->setParent(nullptr);
+}
+
 void Transform::setDirty() {
     if (m_isDirty) 
         return;
+
+    for (auto* child : m_childrens)
+        child->setDirty();
 
     m_isDirty = true;
 }
@@ -26,7 +39,15 @@ void Transform::setParent(Transform* newParent) {
     if (m_parent == newParent) 
         return;
 
+    if (m_parent) {
+        auto& c = m_parent->m_childrens;
+        c.erase(std::find(c.begin(), c.end(), this));
+    }
+
     m_parent = newParent;
+
+    if (m_parent) 
+        m_parent->m_childrens.push_back(this);
 
     setDirty();
 }
