@@ -17,10 +17,6 @@ namespace angler
 		using methodConst = void(C::*)(Args...) const;
 
 		Event() = default;
-		// Event(const Event& _other) = delete;
-		// Event(Event&& _other) = delete;
-		// Event& operator=(const Event& _other) = delete;
-		// Event& operator=(Event&& _other) = delete;
 
 		~Event() { clearListeners(); m_idQueue = {}; }
 
@@ -57,7 +53,7 @@ namespace angler
 			bool m_isConnected = true;
 		};
 
-		uint AddListenerBase(Function<void, Args...>& _func);
+		uint addListenerBase(Function<void, Args...>& _func);
 
 		std::vector<Listener> m_listeners;
 		std::queue<uint> m_idQueue;

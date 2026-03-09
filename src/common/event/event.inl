@@ -17,7 +17,7 @@ namespace angler
 	template<typename ...Args>
 	inline Event<Args...>::Connection Event<Args...>::connect(function _func) {
 		Function<void, Args...> fctListener(_func);
-		uint id = AddListenerBase(fctListener);
+		uint id = addListenerBase(fctListener);
 		return Connection(this, id);
 	}
 
@@ -25,7 +25,7 @@ namespace angler
 	template<class C>
 	inline Event<Args...>::Connection Event<Args...>::connect(C* _object, method<C> _func) {
 		Function<void, Args...> methodListener(_object, _func);
-		uint id = AddListenerBase(methodListener);
+		uint id = addListenerBase(methodListener);
 		return Connection(this, id);
 	}
 
@@ -33,7 +33,7 @@ namespace angler
 	template<class C>
 	inline Event<Args...>::Connection Event<Args...>::connect(C const* _object, methodConst<C> _func) {
 		Function<void, Args...> methodConstListener(_object, _func);
-		uint id = AddListenerBase(methodConstListener);
+		uint id = addListenerBase(methodConstListener);
 		return Connection(this, id);
 	}
 
@@ -60,7 +60,7 @@ namespace angler
 	}
 
 	template<typename ...Args>
-	inline uint Event<Args...>::AddListenerBase(Function<void, Args...>& _func) {
+	inline uint Event<Args...>::addListenerBase(Function<void, Args...>& _func) {
 		if (m_idQueue.empty()) {
 			m_listeners.push_back({ _func, true });
 			return static_cast<uint>(m_listeners.size() - 1);

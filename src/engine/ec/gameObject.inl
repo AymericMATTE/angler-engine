@@ -10,8 +10,7 @@ namespace angler
 	template<class T>
 	T* GameObject::addComponent() {
 		//assert(std::is_base_of<Component, T>::value);
-		if (m_components.contains(T::StaticId()))
-			delete m_components[T::StaticId()];
+		assert(m_components.contains(T::StaticId()) == false);
 
 		T* newComponent = new T();
 		newComponent->m_owner = this;

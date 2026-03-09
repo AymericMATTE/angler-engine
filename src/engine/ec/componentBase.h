@@ -41,12 +41,13 @@ namespace angler
 		virtual void OnAwake() {}
 		virtual void OnStart() {}
 		virtual void OnUpdate() {}
+		virtual void OnPreRender() {}
 		virtual void OnRender() {}
 		virtual void OnDestroy() {}
 
-		virtual void OnCollisionEnter() {}
+		//virtual void OnCollisionEnter() {}
 		virtual void OnCollisionStay() {}
-		virtual void OnCollisionExit() {}
+		//virtual void OnCollisionExit() {}
 
 		[[nodiscard]] virtual uint64 Id() const = 0;
 

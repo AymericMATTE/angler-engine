@@ -194,18 +194,11 @@ namespace angler {
 
         //        });
 
-        //    PhysicsManager::get().m_collisionGrid.resetGrid();
-
-        //    m_ecs.executeScripts(Script::Lifetime::UPDATE); // Update scripts
-        //    m_ecs.executeSystems(System::Lifetime::UPDATE); // Update systems
-
-        //    m_ecs.foreach<StateMachineComponent>([this](ECS::Entity _entity, StateMachineComponent& _stateMachine) {
-        //        _stateMachine.update();
-        //        });
+            PhysicsManager::get().m_collisionGrid.resetGrid();
 
             m_renderer.beginFrame();
 
-        //    // Update main camera
+            // Update main camera
             bool foundMainCamera = false;
         //    m_ecs.foreach<Camera3DComponent, TransformComponent>([this, foundMainCamera](ECS::Entity _entity, Camera3DComponent& _camera3D, TransformComponent& _transform) mutable {
         //        if (!foundMainCamera) {

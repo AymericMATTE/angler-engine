@@ -27,6 +27,8 @@ namespace angler
 
 		void Start();
 		void Update();
+		void LateUpdate();
+		void Collide();
 		void Render();
 
 		void Destroy();
