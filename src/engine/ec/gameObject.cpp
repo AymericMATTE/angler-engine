@@ -36,6 +36,15 @@ namespace angler {
 		}
 	}
 
+	void GameObject::FixedUpdate() {
+		if (m_isEnabled == false)
+			return;
+
+		for (auto& [id, component] : m_components) {
+			component->OnFixedUpdate();
+		}
+	}
+
 	void GameObject::PreRender() {
 		if (m_isEnabled == false)
 			return;

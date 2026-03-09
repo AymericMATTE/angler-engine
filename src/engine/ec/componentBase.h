@@ -40,9 +40,13 @@ namespace angler
 	{
 		virtual void OnAwake() {}
 		virtual void OnStart() {}
+
 		virtual void OnUpdate() {}
+		virtual void OnFixedUpdate() {}
+
 		virtual void OnPreRender() {}
 		virtual void OnRender() {}
+
 		virtual void OnDestroy() {}
 
 		//virtual void OnCollisionEnter() {}

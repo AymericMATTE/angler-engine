@@ -1,35 +1,28 @@
 #include "sceneManager.h"
 
-Scene* SceneManager::getScene(unsigned int _index) {
-    assert(_index < m_scenes.size());
-    return m_scenes[_index];
-}
+namespace angler {
+    Scene* SceneManager::getScene(unsigned int _index) {
+        assert(_index < m_scenes.size());
+        return m_scenes[_index];
+    }
 
-Scene* SceneManager::getActiveScene() {
-    if (m_activeScene >= m_scenes.size())
-        return nullptr;
+    void SceneManager::ChangeScene(Scene* _scene) {
+        assert(_scene != nullptr);
+        m_activeScene = _scene->m_sceneId;
+    }
 
-    return m_scenes[m_activeScene];
-}
+    void SceneManager::RemoveFromList(Scene* _scene) {
+        m_scenes[_scene->m_sceneId] = nullptr;
+        m_freeId.push(_scene->m_sceneId);
 
-void SceneManager::ChangeScene(Scene* _scene) {
-    m_activeScene = _scene->m_sceneId;
-    _scene->OnStart();
-}
+        if (_scene->m_sceneId != m_activeScene)
+            return;
 
-void SceneManager::RemoveFromList(Scene* _scene) {
-    m_scenes[_scene->m_sceneId] = nullptr;
-    m_freeId.push(_scene->m_sceneId);
+        for (Scene* scene : m_scenes) {
+            if (scene == nullptr)
+                continue;
 
-    // TODO Set a new Active Scene if it was the active one
-    if (_scene->m_sceneId != m_activeScene)
-        return;
-
-    for (Scene* scene : m_scenes) {
-        if (scene == nullptr)
-            continue;
-
-        m_activeScene = scene->m_sceneId;
-        m_scenes[m_activeScene]->OnStart();
+            m_activeScene = scene->m_sceneId;
+        }
     }
 }

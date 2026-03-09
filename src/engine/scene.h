@@ -10,6 +10,8 @@ namespace angler
 	public :
 		void Start();
 		void Update();
+		void FixedUpdate();
+		void PreRender();
 		void Render();
 		void Destroy();
 
@@ -20,7 +22,9 @@ namespace angler
 
 		virtual void OnStart() {}
 		virtual void OnUpdate() {}
+		virtual void OnFixedUpdate() {}
 		virtual void OnRender() {}
+		virtual void OnPreRender() {}
 		virtual void OnDestroy() {}
 
 		GameObject* CreateGameObject();

@@ -15,6 +15,32 @@ namespace angler {
 		}
 	}
 
+	void Scene::FixedUpdate() {
+		if (m_isEnabled == false)
+			return;
+
+		OnFixedUpdate();
+		for (GameObject* gameObject : m_gameObjects) {
+			if (gameObject == nullptr)
+				continue;
+
+			gameObject->FixedUpdate();
+		}
+	}
+
+	void Scene::PreRender() {
+		if (m_isEnabled == false)
+			return;
+
+		OnPreRender();
+		for (GameObject* gameObject : m_gameObjects) {
+			if (gameObject == nullptr)
+				continue;
+
+			gameObject->PreRender();
+		}
+	}
+
 	void Scene::Render() {
 		if (m_isEnabled == false)
 			return;

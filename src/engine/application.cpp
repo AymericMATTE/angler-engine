@@ -141,6 +141,12 @@ namespace angler {
             m_renderer.setDeltaTime(m_deltaTime);
             InputManager::update(m_deltaTime, { m_window.getX(), m_window.getY(), m_window.getWidth(), m_window.getHeight() });
 
+        // START
+
+        //UPDATE
+
+        //FIXED UPDATE
+
         //    // Physics
         //    // Update all Colliders
         //    m_ecs.foreach<ColliderComponent, TransformComponent>([this](ECS::Entity _entity, ColliderComponent& _collider, TransformComponent& _transform) {
@@ -198,6 +204,8 @@ namespace angler {
 
             m_renderer.beginFrame();
 
+        // PRERENDER
+
             // Update main camera
             bool foundMainCamera = false;
         //    m_ecs.foreach<Camera3DComponent, TransformComponent>([this, foundMainCamera](ECS::Entity _entity, Camera3DComponent& _camera3D, TransformComponent& _transform) mutable {
@@ -217,8 +225,10 @@ namespace angler {
         //    // Render lights
         //    m_ecs.foreach<LightComponent, TransformComponent>([this](ECS::Entity _entity, LightComponent& _light, TransformComponent& _transform) {
         //        _light.setPosition(_transform.getPosition());
-        //        m_renderer.illuminate(_light.m_light);
+        //       m_renderer.illuminate(_light.m_light);
         //        });
+
+        //RENDER
 
         //    // Render all 3D objects
         //    if (m_mainCamera != nullptr) {
@@ -236,7 +246,7 @@ namespace angler {
         //            m_renderer.drawEmitter(*_em.m_emitter);
         //            });
 
-                m_renderer.end3D();
+            m_renderer.end3D();
         //    }
 
             // m_renderer.begin2D();

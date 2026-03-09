@@ -57,6 +57,7 @@ namespace angler
 		Application();
 		static Application* m_inst;
 		static Settings m_settings;
+
 		SceneManager m_sceneManager;
 		Scene* m_activeScene = nullptr;
 

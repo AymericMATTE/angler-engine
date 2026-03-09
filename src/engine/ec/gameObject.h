@@ -26,9 +26,13 @@ namespace angler
 		bool isEnabled();
 
 		void Start();
+
 		void Update();
-		void PreRender();
+		void FixedUpdate();
+
 		void Collide();
+
+		void PreRender();
 		void Render();
 
 		void Destroy();
