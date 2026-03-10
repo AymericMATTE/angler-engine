@@ -8,6 +8,10 @@ namespace angler
 	class GameObject
 	{
 	public :
+
+		GameObject* getParent();
+		void setParent(GameObject* _parent);
+
 		template<class T>
 		T* addComponent();
 
@@ -41,6 +45,8 @@ namespace angler
 
 	private :
 		GameObject() = default;
+		void removeChild(GameObject* _child);
+		void addChild(GameObject* _child);
 
 		unsigned int m_id = 0;
 		unsigned int m_sceneId = 0;

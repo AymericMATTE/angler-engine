@@ -2,6 +2,23 @@
 #include "application.h"
 
 namespace angler {
+	GameObject* GameObject::getParent() {
+		return m_parent;
+	}
+
+	void GameObject::setParent(GameObject* _parent) {
+		if (m_parent == _parent)
+			return;
+
+		if (m_parent)
+			m_parent->removeChild(this);
+
+		m_parent = _parent;
+
+		if(m_parent)
+			m_parent->addChild(this);
+	}
+
 	void GameObject::Enabled() {
 		m_isEnabled = true;
 	}
@@ -11,11 +28,14 @@ namespace angler {
 	}
 
 	bool GameObject::isEnabled() {
-		return m_isEnabled;
+		if (m_parent)
+			return m_isEnabled && m_parent->isEnabled();
+
+		return m_isEnabled ;
 	}
 
 	void GameObject::Start() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -28,7 +48,7 @@ namespace angler {
 	}
 
 	void GameObject::Update() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -37,7 +57,7 @@ namespace angler {
 	}
 
 	void GameObject::FixedUpdate() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -46,7 +66,7 @@ namespace angler {
 	}
 
 	void GameObject::PreRender() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -55,7 +75,7 @@ namespace angler {
 	}
 
 	void GameObject::Collide() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -64,7 +84,7 @@ namespace angler {
 	}
 
 	void GameObject::Render() {
-		if (m_isEnabled == false)
+		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
@@ -78,8 +98,13 @@ namespace angler {
 
 		Application::get().addToDestroy(this);
 
-		if (m_isEnabled == false)
+		for (GameObject* child : m_childrens) {
+			child->Destroy();
+		}
+
+		if (isEnabled() == false)
 			return;
+
 		for (auto& [id, component] : m_components) {
 			component->OnDestroy();
 		}
@@ -90,6 +115,22 @@ namespace angler {
 			delete component;
 		}
 
+		for (GameObject* child : m_childrens) {
+			child->setParent(nullptr);
+		}
+		
+		m_parent->removeChild(this);
+		m_parent = nullptr;
+
 		m_components.clear();
+	}
+
+	void GameObject::removeChild(GameObject* _child) {
+		auto it = std::find(m_childrens.begin(), m_childrens.end(), _child);
+		m_childrens.erase(it);
+	}
+
+	void GameObject::addChild(GameObject* _child) {
+		m_childrens.push_back(_child);
 	}
 }
