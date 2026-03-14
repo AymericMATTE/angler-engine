@@ -6,7 +6,7 @@
 
 // External dependencies
 #include <vector>
-#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 #include <dxcapi.h>
 
 #include "../srv-descriptor-heap.h"
@@ -95,7 +95,7 @@ namespace angler {
     
         // DirectX12 Interface
         ID3D12Device* m_device;
-        IDXGIFactory4* m_factory;
+        IDXGIFactory6* m_factory;
     
         // Basic Fence
         ID3D12Fence* m_fence;

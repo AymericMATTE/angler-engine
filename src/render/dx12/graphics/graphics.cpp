@@ -18,12 +18,18 @@ namespace angler {
     GraphicsState::GraphicsState() {
         ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_factory)))
 
+        IDXGIAdapter* higher_performance_adapter;
+        HRESULT hr = m_factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+            __uuidof(IDXGIAdapter),
+            (void**)&higher_performance_adapter);
+
         // Try to create hardware device.
         HRESULT hardwareResult = D3D12CreateDevice(
-            nullptr,                // default adapter
+            higher_performance_adapter,                // default adapter
             D3D_FEATURE_LEVEL_12_0,
             IID_PPV_ARGS(&m_device)
         );
+
 
         // Fallback to WARP device.
         if (FAILED(hardwareResult)) {
