@@ -6,14 +6,14 @@ namespace angler {
     T* SceneManager::CreateScene() {
         T* newScene = new T();
 
-        if (m_freeId.empty()) {
+        if (m_scenefreeId.empty()) {
             newScene->m_sceneId = m_scenes.size();
             m_scenes.push_back(newScene);
         }
         else {
-            newScene->m_sceneId = m_freeId.front();
+            newScene->m_sceneId = m_scenefreeId.front();
             m_scenes[newScene->m_sceneId] = newScene;
-            m_freeId.pop();
+            m_scenefreeId.pop();
         }
 
         return newScene;

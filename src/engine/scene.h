@@ -37,7 +37,7 @@ namespace angler
 
 		std::vector<GameObject*> m_gameObjects = {};
 		std::queue<unsigned int> m_freeId = {};
-		unsigned int m_sceneId = 0;
+		int m_sceneId = 0;
 
 		bool m_isEnabled = false;
 

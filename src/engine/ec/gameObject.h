@@ -49,7 +49,7 @@ namespace angler
 		void addChild(GameObject* _child);
 
 		unsigned int m_id = 0;
-		unsigned int m_sceneId = 0;
+		int m_sceneId = 0;
 		std::unordered_map<unsigned long long, Component*> m_components = {};
 
 		bool m_toDestroy = false;

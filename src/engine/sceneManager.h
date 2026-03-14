@@ -8,20 +8,23 @@ namespace angler
 	class SceneManager
 	{
 	public :
-		Scene* getScene(unsigned int _index);
-
 		template<class T>
 		T* CreateScene();
 
 		void ChangeScene(Scene* _scene);
 
 	private :
-		SceneManager() = default;
+		SceneManager();
 		void RemoveFromList(Scene* _scene);
 
+		Scene* getScene(int _index);
+		Scene* getGlobalScene();
+
 		std::vector<Scene*> m_scenes = {};
-		std::queue<unsigned int> m_freeId = {};
+		std::queue<unsigned int> m_scenefreeId = {};
 		unsigned int m_activeScene = 0;
+
+		Scene m_globalScene;
 
 		friend class Application;
 	};

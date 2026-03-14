@@ -1,8 +1,16 @@
 #include "sceneManager.h"
 
 namespace angler {
-    Scene* SceneManager::getScene(unsigned int _index) {
+    SceneManager::SceneManager() {
+        m_globalScene.m_sceneId = -1;
+    }
+
+    Scene* SceneManager::getScene(int _index) {
         assert(_index < m_scenes.size());
+
+        if (_index == -1)
+            return &m_globalScene;
+
         return m_scenes[_index];
     }
 
@@ -12,8 +20,11 @@ namespace angler {
     }
 
     void SceneManager::RemoveFromList(Scene* _scene) {
+        if (_scene->m_sceneId == -1) // TODO maybe change
+            return;
+
         m_scenes[_scene->m_sceneId] = nullptr;
-        m_freeId.push(_scene->m_sceneId);
+        m_scenefreeId.push(_scene->m_sceneId);
 
         if (_scene->m_sceneId != m_activeScene)
             return;
@@ -24,5 +35,9 @@ namespace angler {
 
             m_activeScene = scene->m_sceneId;
         }
+    }
+
+    Scene* SceneManager::getGlobalScene() {
+        return &m_globalScene;
     }
 }

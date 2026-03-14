@@ -7,6 +7,7 @@ namespace angler {
 	}
 
 	void GameObject::setParent(GameObject* _parent) {
+		assert(_parent->m_sceneId == m_sceneId);
 		if (m_parent == _parent)
 			return;
 
