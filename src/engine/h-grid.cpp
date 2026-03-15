@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "h-grid.h"
+#include "engine/ec/game-object.h"
+#include "engine/physics-manager.h"
 
 namespace angler {
 
@@ -69,6 +71,42 @@ namespace angler {
 		}
 
 		assert(0); // If we are here, _obj is not in the grid
+	}
+
+	void HGrid::updateObject(ColliderComponent* _obj)
+	{
+		if (_obj->m_tick != _obj->getOwner()->m_tick) {
+			PhysicsManager::get().m_collisionGrid.removeObject(_obj);
+
+			DirectX::XMFLOAT3 pos = _obj->getOwner()->getPosition();
+			DirectX::XMFLOAT3 scale = _obj->getOwner()->getScale();
+			switch (_obj->m_bounds->type) {
+			case GameBounds::SPHERE:
+			{
+				_obj->m_bounds->sphere->center = { pos.x + _obj->m_transformOffset.x, pos.y + _obj->m_transformOffset.y, pos.z + _obj->m_transformOffset.z };
+				// Get biggest scale extent
+				float maxScaleAxis = scale.x > scale.y ? scale.x : scale.y;
+				maxScaleAxis = scale.z > maxScaleAxis ? scale.z : maxScaleAxis;
+				_obj->m_bounds->sphere->radius = maxScaleAxis * _obj->m_baseRadius;
+				break;
+			}
+
+			case GameBounds::BOX:
+			{
+				_obj->m_bounds->box->center.xmF = { pos.x + _obj->m_transformOffset.x, pos.y + _obj->m_transformOffset.y, pos.z + _obj->m_transformOffset.z };
+				_obj->m_bounds->box->axes[0].xmF = _obj->getOwner()->getRight();
+				_obj->m_bounds->box->axes[1].xmF = _obj->getOwner()->getUp();
+				_obj->m_bounds->box->axes[2].xmF = _obj->getOwner()->getForward();
+				DirectX::XMStoreFloat3(&_obj->m_bounds->box->extents.xmF, DirectX::XMVectorMultiply(DirectX::XMLoadFloat3(&scale), DirectX::XMLoadFloat3(&_obj->m_baseExtents)));
+				break;
+			}
+			}
+
+			//_obj->UpdateBounds();
+			_obj->m_tick = _obj->getOwner()->m_tick;
+
+			PhysicsManager::get().m_collisionGrid.addObject(_obj);
+		}
 	}
 
 	std::list<ColliderComponent*> HGrid::checkObjAgainstGrid(ColliderComponent* _obj)

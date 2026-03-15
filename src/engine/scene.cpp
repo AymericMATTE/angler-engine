@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "scene.h"
 #include "application.h"
 
@@ -5,6 +6,8 @@ namespace angler {
 	void Scene::Start() {
 		if (m_isEnabled == false)
 			return;
+
+		m_started = true;
 
 		OnStart();
 		for (GameObject* gameObject : m_gameObjects) {
@@ -41,16 +44,30 @@ namespace angler {
 		}
 	}
 
-	void Scene::Render() {
+	void Scene::Render3D() {
 		if (m_isEnabled == false)
 			return;
 
-		OnRender();
+		OnRender3D();
 		for (GameObject* gameObject : m_gameObjects) {
 			if (gameObject == nullptr)
 				continue;
 
-			gameObject->Render();
+			gameObject->Render3D();
+		}
+	}
+
+	void Scene::RenderUI()
+	{
+		if (m_isEnabled == false)
+			return;
+
+		OnRenderUI();
+		for (GameObject* gameObject : m_gameObjects) {
+			if (gameObject == nullptr)
+				continue;
+
+			gameObject->RenderUI();
 		}
 	}
 
@@ -107,6 +124,13 @@ namespace angler {
 		}
 
 		return newGameObject;
+	}
+
+	void Scene::SetMainCamera(Camera3DComponent* _camera)
+	{
+		if(m_mainCamera) m_mainCamera->m_isMain = false;
+		m_mainCamera = _camera;		
+		m_mainCamera->m_isMain = true;
 	}
 
 	std::vector<GameObject*>& Scene::getGameObjects() {

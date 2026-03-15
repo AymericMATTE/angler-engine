@@ -52,6 +52,15 @@ void Transform::setParent(Transform* newParent) {
     setDirty();
 }
 
+void Transform::addChild(Transform* newChild) {
+    m_childrens.push_back(m_parent);
+}
+
+void Transform::removeChild(Transform* _child) {
+    auto it = std::find(m_childrens.begin(), m_childrens.end(), _child);
+    m_childrens.erase(it);
+}
+
 void Transform::setPosition(const XMFLOAT3& pos) {
     if (m_parent) {
         XMFLOAT4X4 parentWorld = m_parent->getWorldMatrix();

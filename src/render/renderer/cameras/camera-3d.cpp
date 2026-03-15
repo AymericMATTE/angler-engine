@@ -60,7 +60,8 @@ namespace angler {
         
         //////////////// VIEW ////////////////
 
-        XMFLOAT4X4 world = m_transform.getTransposedWorldMatrix();
+        XMFLOAT4X4 world;
+        XMStoreFloat4x4(&world, XMMatrixTranspose(XMLoadFloat4x4(&m_world)));
         XMMATRIX view = XMMatrixInverse(nullptr, XMLoadFloat4x4(&world));
         XMStoreFloat4x4(&m_view, view);
 
@@ -79,128 +80,16 @@ namespace angler {
         m_dirty = false;
     }
 
-    void Camera3D::setPosition(const DirectX::XMFLOAT3& _position) {
-        m_transform.setPosition(_position);
-        m_dirty = true;
-    }
-
-    void Camera3D::setRotation(const DirectX::XMFLOAT4& _rotation) {
-        m_transform.setRotation(_rotation);
-        m_dirty = true;
-    }
-
-    void Camera3D::setScale(const DirectX::XMFLOAT3& _scale) {
-        m_transform.setScale(_scale);
-        m_dirty = true;
-    }
-
-    void Camera3D::translate(const DirectX::XMFLOAT3& _delta) {
-        m_transform.translate(_delta);
-        m_dirty = true;
-    }
-
-    void Camera3D::rotate(const DirectX::XMFLOAT4& _delta) {
-        m_transform.rotate(_delta);
-        m_dirty = true;
-    }
-
-    void Camera3D::rotate(const DirectX::XMFLOAT3& _rotation) {
-        m_transform.rotate(_rotation);
-        m_dirty = true;
-    }
-
-    void Camera3D::scale(const DirectX::XMFLOAT3& _factor) {
-        m_transform.scale(_factor);
-        m_dirty = true;
-    }
-
-    void Camera3D::setLocalPosition(const DirectX::XMFLOAT3& _position) {
-        m_transform.setLocalPosition(_position);
-        m_dirty = true;
-    }
-
-    void Camera3D::setLocalRotation(const DirectX::XMFLOAT4& _rotation) {
-        m_transform.setLocalRotation(_rotation);
-        m_dirty = true;
-    }
-
-    void Camera3D::setLocalScale(const DirectX::XMFLOAT3& _scale) {
-        m_transform.setLocalScale(_scale);
-        m_dirty = true;
-    }
-
-    void Camera3D::localTranslate(const DirectX::XMFLOAT3& _delta) {
-        m_transform.localTranslate(_delta);
-        m_dirty = true;
-    }
-
-    void Camera3D::localRotate(const DirectX::XMFLOAT4& _delta) {
-        m_transform.localRotate(_delta);
-        m_dirty = true;
-    }
-    void Camera3D::localRotate(const DirectX::XMFLOAT3& _delta) {
-        m_transform.localRotate(_delta);
-        m_dirty = true;
-    }
-
-    void Camera3D::localScale(const DirectX::XMFLOAT3& _factor) {
-        m_transform.localScale(_factor);
-        m_dirty = true;
-    }
-
-    void Camera3D::lookAt(const DirectX::XMFLOAT3& _target, const DirectX::XMFLOAT3& up) {
-        m_transform.lookAt(_target, up);
-        m_dirty = true;
-    }
-
-    void Camera3D::lookTo(const DirectX::XMFLOAT3& _direction, const DirectX::XMFLOAT3& up) {
-        m_transform.lookTo(_direction, up);
-        m_dirty = true;
-    }
-
     DirectX::XMFLOAT3 Camera3D::getPosition() {
-        return m_transform.getPosition();
-    }
-
-    DirectX::XMFLOAT4 Camera3D::getRotation() {
-        return m_transform.getRotation();
-    }
-
-    DirectX::XMFLOAT3 Camera3D::getScale() {
-        return m_transform.getScale();
-    }
-
-    DirectX::XMFLOAT3 Camera3D::getLocalPosition() const {
-        return m_transform.getLocalPosition();
-    }
-
-    DirectX::XMFLOAT4 Camera3D::getLocalRotation() const {
-        return m_transform.getLocalRotation();
-    }
-
-    DirectX::XMFLOAT3 Camera3D::getLocalScale() const {
-        return m_transform.getLocalScale();
+        return XMFLOAT3(m_world._41, m_world._42, m_world._43);
     }
 
     DirectX::XMFLOAT4X4 Camera3D::getWorldMatrix() {
-        return m_transform.getWorldMatrix();
+        return m_world;
     }
 
-    DirectX::XMFLOAT3 Camera3D::getRight() {
-        return m_transform.getRight();
-    }
-
-    DirectX::XMFLOAT3 Camera3D::getUp() {
-        return m_transform.getUp();
-    }
-
-    DirectX::XMFLOAT3 Camera3D::getForward() {
-        return m_transform.getForward();
-    }
-
-    void Camera3D::setTransform(Transform& _transform)
-    {
-        m_transform = _transform;
+    void Camera3D::setWorldMatrix(const XMFLOAT4X4& _world) {
+        memcpy(&m_world, &_world, sizeof(XMFLOAT4X4));
         m_dirty = true;
     }
     

@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "common/types.h"
 #include "common/physics.h"
-#include "ecs/components/collider-component.h"
+#include "ec/components/collider-component.h"
 #include <list>
 
 namespace angler {
@@ -24,6 +24,8 @@ namespace angler {
 	public:
 		void addObject(ColliderComponent* _obj);
 		void removeObject(ColliderComponent* _obj);
+		void updateObject(ColliderComponent* _obj);
+
 		std::list<ColliderComponent*> checkObjAgainstGrid(ColliderComponent* _obj);
 		bool isColliding(ColliderComponent* _a, ColliderComponent* _b);
 		void resetGrid();

@@ -8,6 +8,8 @@ public:
     ~Transform();
 
     void setParent(Transform* newParent);
+    void addChild(Transform* newChild);
+    void removeChild(Transform* _child);
 
     void translate(const DirectX::XMFLOAT3& delta);
     void rotate(const DirectX::XMFLOAT4& deltaQuat);

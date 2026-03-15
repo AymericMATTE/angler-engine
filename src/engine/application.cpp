@@ -142,10 +142,13 @@ namespace angler {
             InputManager::update(m_deltaTime, { m_window.getX(), m_window.getY(), m_window.getWidth(), m_window.getHeight() });
 
         // START
+            if(m_activeScene->m_started == false) m_activeScene->Start();
 
         //UPDATE
+            m_activeScene->Update();
 
         //FIXED UPDATE
+            m_activeScene->FixedUpdate();
 
         //    // Physics
         //    // Update all Colliders
@@ -184,28 +187,12 @@ namespace angler {
 
         //        PhysicsManager::get().m_collisionGrid.addObject(&_collider);
         //        });
-        //    // Detect collisions
-        //    m_ecs.foreach<ColliderComponent, TransformComponent>([this](ECS::Entity _entity, ColliderComponent& _collider, TransformComponent& _transform) {
-        //        std::list<ColliderComponent*> collidingList = PhysicsManager::get().m_collisionGrid.checkObjAgainstGrid(&_collider);
-
-        //        CollisionTagComponent& tag = m_ecs.addComponent<CollisionTagComponent>(_entity);
-        //        for (auto other : collidingList)
-        //        {
-        //            _collider.m_colliding = other;
-        //            m_ecs.executeSystems(System::Lifetime::COLLISION); // Start systems
-        //        }
-        //        tag.test = false;
-        //        m_ecs.removeComponent<CollisionTagComponent>(_entity);
-        //        _collider.m_colliding = nullptr;
-
-        //        });
-
-            PhysicsManager::get().m_collisionGrid.resetGrid();
 
             m_renderer.beginFrame();
 
         // PRERENDER
-
+            m_activeScene->PreRender();
+            
             // Update main camera
             bool foundMainCamera = false;
         //    m_ecs.foreach<Camera3DComponent, TransformComponent>([this, foundMainCamera](ECS::Entity _entity, Camera3DComponent& _camera3D, TransformComponent& _transform) mutable {
@@ -231,14 +218,10 @@ namespace angler {
         //RENDER
 
         //    // Render all 3D objects
-        //    if (m_mainCamera != nullptr) {
-                //m_renderer.begin3D(m_mainCamera->m_camera3D);
+            if (m_activeScene->m_mainCamera != nullptr) {
 
-        //        // Render Meshes
-        //        m_ecs.foreach<MeshComponent, TransformComponent>([this](ECS::Entity _entity, MeshComponent& _mesh, TransformComponent& _transform) {
-        //            if (_mesh.m_mesh == nullptr || _mesh.m_material == nullptr) return;
-        //            m_renderer.draw(*_mesh.m_mesh, _transform.m_transform, *_mesh.m_material);
-        //            });
+                m_renderer.begin3D(m_activeScene->m_mainCamera->m_camera3D);
+                m_activeScene->Render3D();
 
         //        // Render Particles
         //        m_ecs.foreach<ParticleEmitterComponent, TransformComponent>([this](ECS::Entity _entity, ParticleEmitterComponent& _em, TransformComponent& _transform) {
@@ -247,12 +230,13 @@ namespace angler {
         //            });
 
             m_renderer.end3D();
-        //    }
+            }
 
             // m_renderer.begin2D();
             // m_renderer.end2D();
 
             m_renderer.beginUI();
+            m_activeScene->RenderUI();
 
         //    m_ecs.foreach<SpriteComponent, TransformComponent>([this](ECS::Entity _entity, SpriteComponent& _sprite, TransformComponent& _transform) {
         //        m_renderer.drawSprite(_sprite.getSprite(), _sprite.getPosition(), _sprite.getLayer(), _sprite.getAnchor(), _sprite.getScale(), _sprite.getRotation(), _sprite.getColor());

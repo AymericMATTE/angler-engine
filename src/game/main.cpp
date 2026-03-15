@@ -6,44 +6,33 @@
 #define ANGLER_WINDOW_WIDTH 1920
 #define ANGLER_WINDOW_HEIGHT 1080
 #include "application.h"
-#include "game-resources.h"
 
-#include "game-manager.h"
-#include "generation/lvl-generator.h"
-#include "generation/rail-system.h"
-#include "player.h"
-#include "bullet.h"
-#include "qte.h"
-#include "enemy.h"
+//#pragma comment(linker, "/WHOLEARCHIVE:engine.lib") // DO NOT REMOVE OR AUTOMATIC SCRIPTS & SYSTEM REGISTRATION WILL FAIL, signed Ethan. thanks
+
+#include <DirectXMath.h>
+
+#include "render/os/window.h"
+#include "resource-manager.h"
+#include "common/time/clock.h"
+//#include "ec/components/default-camera-component.h"
+#include "render/dx12/objects/mesh.h"
+#include "render/renderer/renderer.h"
+//#include "ec/components/mesh-component.h"
+//#include "ec/components/light-component.h"
+//#include "ec/components/particle-emitter-component.h"
+//#include "ec/components/sprite-component.h"
+//#include "ec/components/text-component.h"
+//#include "ec/components/transform-component.h"
+#include "render/dx12/objects/static-mesh.h"
+#include "render/renderer/cameras/camera-3d.h"
+#include "render/dx12/shaders/compute-shader.h"
+#include "render/dx12/root-signatures/compute-root-sig.h"
+#include "render/dx12/particles-emitter/particles-emitter.h"
 
 using namespace angler;
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
-    Application& app = APPLICATION;
+    /*Application& app = Application::get();
     
-    ECS& ecs = app.getECS();
-    Renderer& renderer = app.getRenderer();
-    
-    REGISTER_SCRIPT(SetupGameInputs);
-    REGISTER_SCRIPT(GameStartup);
-    REGISTER_SCRIPT(GameManagerStart); 
-    REGISTER_SCRIPT(GameManagerUpdate);
-
-    REGISTER_SYSTEM(RailSystem);
-    REGISTER_SYSTEM(ChunkCleanupSystem);
-
-    REGISTER_SYSTEM(PlayerUpdate);
-    REGISTER_SYSTEM(PlayerCameraUpdate);
-
-    REGISTER_SYSTEM(BulletCollide);
-    REGISTER_SYSTEM(BulletUpdate);
-
-    REGISTER_SYSTEM(ABQTEUpdate);
-    
-    REGISTER_SYSTEM(enemyRotation);
-
-    REGISTER_SYSTEM(enemyBulletUpdate);
-    REGISTER_SYSTEM(enemyBulletCollide);
-
-    return app.run();
+    return app.run();*/
 }
