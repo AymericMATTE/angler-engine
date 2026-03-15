@@ -26,7 +26,7 @@ namespace angler
 		if (m_components.contains(T::StaticId()) == false)
 			return nullptr;
 
-		return m_components[T::StaticId()];
+		return (T*)m_components[T::StaticId()];
 	}
 
 	template<class T>

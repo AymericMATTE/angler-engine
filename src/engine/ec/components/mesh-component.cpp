@@ -7,7 +7,7 @@ namespace angler {
     {
         if (m_mesh == nullptr || m_material == nullptr) return;
         
-        Application::get().getRenderer().draw(*m_mesh, getOwner()->m_transform, *m_material);
+        Application::get().getRenderer().draw(*m_mesh, getOwner()->m_transform, *m_material, m_uvOffset, m_uvScale);
     }
 
     MeshComponent::MeshComponent(Mesh* _mesh, Material* _material) {
@@ -19,6 +19,16 @@ namespace angler {
     }
     void MeshComponent::setMaterial(Material* _material) {
         m_material = _material;
+    }
+
+    void MeshComponent::setUVOffset(const DirectX::XMFLOAT2& _offset)
+    {
+        m_uvOffset = _offset;
+    }
+
+    void MeshComponent::setUVScale(const DirectX::XMFLOAT2& _scale)
+    {
+        m_uvScale = _scale;
     }
     
     Mesh* MeshComponent::getMesh() const {

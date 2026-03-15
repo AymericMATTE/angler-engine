@@ -75,7 +75,7 @@ namespace angler {
 		}
 	}
 
-	DirectX::XMFLOAT4X4 SpriteSheet::getTextureTransform()
+	DirectX::XMFLOAT2 SpriteSheet::getUVOffset()
 	{
 		DirectX::XMFLOAT2 maxFloat(static_cast<float>((spriteSize.x + spacing.x) * size.x + offset.x),
 			static_cast<float>((spriteSize.y + spacing.y) * size.y + offset.y));
@@ -84,15 +84,8 @@ namespace angler {
 		DirectX::XMUINT4 spriteRect(GetSpriteRect(currentFrame));
 		DirectX::XMFLOAT4 textureCoords;
 		DirectX::XMStoreFloat4(&textureCoords, DirectX::XMVectorDivide(DirectX::XMLoadUInt4(&spriteRect), max));
-		
-		DirectX::XMFLOAT4X4 texTransform;
-		DirectX::XMStoreFloat4x4(&texTransform, DirectX::XMMatrixTranspose(DirectX::XMMATRIX(
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			textureCoords.x, textureCoords.y, 0, 1)));
 
-		return texTransform;
+		return { textureCoords.x, textureCoords.y};
 	}
 
 	Font::Font(wcstr _filePath, uint _spriteCount, uint _spritesPerRow, DirectX::XMUINT2 _sheetOffset, DirectX::XMUINT2 _spriteSpacing): SpriteSheet(_filePath, _spriteCount, _spritesPerRow, _sheetOffset, _spriteSpacing) {}

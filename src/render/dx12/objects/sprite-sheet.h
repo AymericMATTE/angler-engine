@@ -38,9 +38,9 @@ namespace angler{
 		void SetCurrentFrame(uint _frame);
 		void NextFrame();
 
-	private:
-		DirectX::XMFLOAT4X4 getTextureTransform();
+		DirectX::XMFLOAT2 getUVOffset();
 
+	private:
 		friend class Renderer;
 	};
 

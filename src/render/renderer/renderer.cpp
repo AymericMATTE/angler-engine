@@ -466,16 +466,18 @@ namespace angler {
         m_3dPass.data.ambientColor = _color;
     }
 
-    void Renderer::draw(const Mesh& _mesh, Transform& _transform, Material& _material)
+    void Renderer::draw(const Mesh& _mesh, Transform& _transform, Material& _material, DirectX::XMFLOAT2 _uvOffset, DirectX::XMFLOAT2 _uvScale)
     {
         AABB box = _mesh.getBoundingBox();
         if (Physics::isOnFrustum(box, m_3dPass.frustum, _transform) == false)
             return;
 
         auto* objCB = m_3dPass.objects.next();
-        objCB->init(sizeof(DirectX::XMFLOAT4X4));
+        objCB->init(sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT2));
         DirectX::XMFLOAT4X4 matrix = _transform.getTransposedWorldMatrix();
         objCB->copyData(&matrix, 0);
+        objCB->copyData(&_uvOffset, sizeof(DirectX::XMFLOAT4X4));
+        objCB->copyData(&_uvScale, sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT2));
         Graphics::setGraphicsBuffer(0, ViewType::CBV, objCB);
 
         Graphics::setShader(_material.getShader());
@@ -535,9 +537,9 @@ namespace angler {
             Graphics::setGraphicsBuffer(1, ViewType::CBV, call.material->getConstantBuffer());
 
             auto* objCB = m_2dPass.objects.next();
-            objCB->init(2 * sizeof(DirectX::XMFLOAT4X4));
+            objCB->init(sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT2));
             objCB->copyData(&call.world, 0);
-            objCB->copyData(&call.texTransform, sizeof(DirectX::XMFLOAT4X4));
+            objCB->copyData(&call.texOffset, sizeof(DirectX::XMFLOAT4X4));
             Graphics::setGraphicsBuffer(0, ViewType::CBV, objCB);
 
             Graphics::drawMesh(call.mesh);
@@ -548,9 +550,9 @@ namespace angler {
     }
 
     void Renderer::submitUI(const Mesh* _mesh, const DirectX::XMFLOAT4X4& _world,
-        const DirectX::XMFLOAT4X4& _texTransform, Material* _material, int _layer) {
+        const DirectX::XMFLOAT2& _texOffset, Material* _material, int _layer) {
         
-        m_2dPass.drawQueue.push_back({_mesh, _world, _texTransform, _material, _layer});
+        m_2dPass.drawQueue.push_back({_mesh, _world, _texOffset, _material, _layer});
     }
 
     DirectX::XMMATRIX Renderer::buildWorldMatrix2D(DirectX::XMFLOAT2 _screenPos, DirectX::XMFLOAT2 _anchor,
@@ -600,7 +602,7 @@ namespace angler {
             DirectX::XMStoreFloat4x4(&worldT, DirectX::XMMatrixTranspose(world));
 
             m_font.spriteSheet->SetCurrentFrame(c);
-            submitUI(m_font.mesh, worldT, m_font.spriteSheet->getTextureTransform(), m_font.material, _layer);
+            submitUI(m_font.mesh, worldT, m_font.spriteSheet->getUVOffset(), m_font.material, _layer);
         }
     }
 
@@ -616,7 +618,7 @@ namespace angler {
         DirectX::XMFLOAT4X4 worldT;
         DirectX::XMStoreFloat4x4(&worldT, DirectX::XMMatrixTranspose(world));
 
-        submitUI(sprite->mesh, worldT, sprite->getTextureTransform(), sprite->mat, _layer);
+        submitUI(sprite->mesh, worldT, sprite->getUVOffset(), sprite->mat, _layer);
     }
 
 

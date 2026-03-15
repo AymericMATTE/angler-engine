@@ -54,7 +54,7 @@ namespace angler {
     struct UIDrawCall {
         const Mesh* mesh;
         DirectX::XMFLOAT4X4 world;
-        DirectX::XMFLOAT4X4 texTransform;
+        DirectX::XMFLOAT2 texOffset;
         Material* material;
         int layer;
     };
@@ -262,7 +262,7 @@ namespace angler {
         /// <param name="_mesh">The geometry to render.</param>
         /// <param name="_transform">Transform object used on the mesh (position, rotation, scale).</param>
         /// <param name="_material">Surface properties. Uses default material if not specified.</param>
-        void draw(const Mesh& _mesh, Transform& _transform, Material& _material = Material::getDefault()); // TO DO : Change for an actual Transform
+        void draw(const Mesh& _mesh, Transform& _transform, Material& _material = Material::getDefault(), DirectX::XMFLOAT2 _uvOffset = { 0, 0 }, DirectX::XMFLOAT2 _uvScale = { 1, 1 }); // TO DO : Change for an actual Transform
         /// <summary>
         /// Draws text on screen using the current font.
         /// </summary>
@@ -381,7 +381,7 @@ namespace angler {
         // =================================================================================
         
         void submitUI(const Mesh* _mesh, const DirectX::XMFLOAT4X4& _world, 
-            const DirectX::XMFLOAT4X4& _texTransform, Material* _material, int _layer);
+            const DirectX::XMFLOAT2& _texOffset, Material* _material, int _layer);
         DirectX::XMMATRIX buildWorldMatrix2D(DirectX::XMFLOAT2 _screenPos, DirectX::XMFLOAT2 _anchor, 
             DirectX::XMFLOAT2 _scale, float _rotation, int _layer, DirectX::XMFLOAT2 _size) const;
     };

@@ -46,14 +46,11 @@ void Transform::setParent(Transform* newParent) {
 
     m_parent = newParent;
 
-    if (m_parent) 
-        m_parent->m_childrens.push_back(this);
-
     setDirty();
 }
 
 void Transform::addChild(Transform* newChild) {
-    m_childrens.push_back(m_parent);
+    m_childrens.push_back(newChild);
 }
 
 void Transform::removeChild(Transform* _child) {

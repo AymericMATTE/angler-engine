@@ -11,7 +11,7 @@ cbuffer cbPassData : register(b0, space0)
 cbuffer cbPerObject : register(b0, space1)
 {
     float4x4 gWorld;
-    float4x4 gTexTransform;
+    float2 gTexOffset;
 };
 
 cbuffer cbMaterial : register(b1, space1)
@@ -37,7 +37,7 @@ VertexOut VS(VertexIn vertexIn)
     VertexOut vertexOut;
     float4x4 worldProj = mul(gWorld, proj);
     vertexOut.position = mul(float4(vertexIn.position, 1.0f), worldProj);
-    vertexOut.uv = mul(float4(vertexIn.uv, 0.0f, 1.0f), gTexTransform).xy;
+    vertexOut.uv = float2(vertexIn.uv.x + gTexOffset.x, vertexIn.uv.y + gTexOffset.y);
    
     return vertexOut;
 }

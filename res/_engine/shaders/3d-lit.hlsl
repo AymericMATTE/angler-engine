@@ -39,6 +39,8 @@ cbuffer cbPass : register(b0, space0)
 cbuffer cbTransform : register(b0, space1)
 {
     float4x4 world;
+    float2 gTexOffset;
+    float2 gTexScale;
 };
 
 cbuffer cbMaterial : register(b1, space1)
@@ -79,7 +81,7 @@ VertexOut VS(VertexIn v) {
     o.normal = mul(v.normal, (float3x3)world);
     
     o.color = v.color;
-    o.uv = v.uv;
+    o.uv = float2(v.uv.x / gTexScale.x + gTexOffset.x, v.uv.y / gTexScale.y + gTexOffset.y);
 
     return o;
 }

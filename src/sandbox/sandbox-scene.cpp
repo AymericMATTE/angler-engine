@@ -12,6 +12,7 @@
 #include "engine/ec/components/text-component.h"
 #include "engine/ec/components/sprite-component.h"
 #include "engine/ec/components/particle-emitter-component.h"
+#include "engine/ec/components/sprite-animator-3d-component.h"
 
 #include "render/dx12/objects/static-mesh.h"
 
@@ -146,13 +147,13 @@ void SandboxScene::OnStart() {
         meshComp->setMaterial(mat);
     }
 
-    angler::GameObject* spriteObject = CreateGameObject();
+    /*angler::GameObject* spriteObject = CreateGameObject();
     angler::SpriteComponent* sprite = spriteObject->addComponent<angler::SpriteComponent>();
     sprite->setSprite(angler::ResourceManager::getSprite("tex-uv-checker", 1, 1));
     sprite->setPosition({ 25.0f, 25.0f });
     sprite->setColor(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f));
     sprite->setScale({ 1, 1 });
-    sprite->setLayer(0);
+    sprite->setLayer(0);*/
 
     angler::GameObject* textObject = CreateGameObject();
     angler::TextComponent* text = textObject->addComponent<angler::TextComponent>();
@@ -178,6 +179,31 @@ void SandboxScene::OnStart() {
     pointMat->setProperty("specular", 0.0f);
     pointMesh->setMaterial(pointMat);
     pointLightObject->addComponent<angler::ColliderComponent>()->SetSphere();
+
+    angler::Material* textureMat = new angler::Material(renderer.getDefault3DShader());
+    textureMat->setProperty("albedoID", angler::ResourceManager::getTexture("tex-wooden-plank")->getId()); // No texture
+    textureMat->setProperty("baseColor", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+    textureMat->setProperty("metallic", 0.0f);
+    textureMat->setProperty("roughness", 1.0f);
+    textureMat->setProperty("specular", 0.0f);
+
+    angler::GameObject* SpriteObject3D = CreateGameObject();
+    angler::MeshComponent* spriteMesh = SpriteObject3D->addComponent<angler::MeshComponent>();
+    angler::SpriteAnimator3DComponent* animator = SpriteObject3D->addComponent<angler::SpriteAnimator3DComponent>();
+    spriteMesh->setMesh(angler::ResourceManager::getMesh("mesh-quad"));
+    animator->setSprite(angler::ResourceManager::getSprite("tex-uv-checker", 64, 8));
+
+    SpriteAnimation defaultAnim;
+    defaultAnim.frames.push_back({ {0, 0}, 2 });
+    defaultAnim.frames.push_back({ {0, 1}, 0.5 });
+    defaultAnim.frames.push_back({ {1, 0}, 0.5 });
+    defaultAnim.frames.push_back({ {1, 1}, 0.5 });
+    animator->addAnimation(defaultAnim, "default");
+    animator->play("default");
+
+    //SpriteObject3D->setParent(object);
+    SpriteObject3D->setLocalPosition({ 0, 1, 1 });
+    SpriteObject3D->localRotate({ 0, 0, -3.1415/2 });
 
     angler::GameObject* particleObject = CreateGameObject();
     particleObject->setPosition({ 4.0f, 1.0f, 0.0f });
