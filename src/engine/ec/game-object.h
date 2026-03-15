@@ -35,7 +35,7 @@ namespace angler
 		void Update();
 		void FixedUpdate();
 
-		void Collide();
+		void Collide(GameObject* _other);
 
 		void PreRender();
 		void Render3D();

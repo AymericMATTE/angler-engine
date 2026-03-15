@@ -35,12 +35,8 @@ namespace angler {
 		std::list<ColliderComponent*> collidingList = PhysicsManager::get().m_collisionGrid.checkObjAgainstGrid(this);
 		for (auto other : collidingList)
 		{
-			// Call user scripts
+			getOwner()->Collide(other->getOwner());
 		}
-	}
-
-	ColliderComponent* ColliderComponent::getColliding() {
-		return m_colliding;
 	}
 
 	void ColliderComponent::UpdateBounds() {

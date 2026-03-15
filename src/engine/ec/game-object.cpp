@@ -77,12 +77,12 @@ namespace angler {
 		}
 	}
 
-	void GameObject::Collide() {
+	void GameObject::Collide(GameObject* _other) {
 		if (isEnabled() == false)
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnCollisionStay();
+			component->OnCollisionStay(_other);
 		}
 	}
 

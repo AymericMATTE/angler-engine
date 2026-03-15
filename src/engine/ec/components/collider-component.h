@@ -13,8 +13,6 @@ namespace angler {
         void SetBox(DirectX::XMFLOAT3 _halfExtent = DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f), DirectX::XMFLOAT3 _offsetFromTransform = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
         void SetSphere(float _radius = 0.5f, DirectX::XMFLOAT3 _offsetFromTransform = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-        ColliderComponent* getColliding();
-
         void OnFixedUpdate();
     
     private:
@@ -24,8 +22,6 @@ namespace angler {
 
         float m_baseRadius = 0.0f;
         DirectX::XMFLOAT3 m_baseExtents = {};
-
-        ColliderComponent* m_colliding = nullptr;
 
         // HGrid data
         ColliderComponent* next = nullptr;

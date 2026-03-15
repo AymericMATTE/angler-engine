@@ -115,12 +115,13 @@ void SandboxScene::OnStart() {
     angler::Renderer& renderer = angler::Application::get().getRenderer();
 
     angler::GameObject* object = CreateGameObject();
+    object->setPosition({ 0.0f, 1.0f, -3.0f });
     object->addComponent<angler::ColliderComponent>()->SetSphere();
     angler::Camera3DComponent* camera = object->addComponent<angler::Camera3DComponent>();
     object->addComponent<angler::DefaultCameraComponent>()->setMode(angler::DefaultCameraComponent::MODE_2);
 
     SetMainCamera(camera);
-
+    
     angler::GameObject* sun = CreateGameObject();
     angler::LightComponent* sunlight = sun->addComponent<angler::LightComponent>();
     sunlight->directional();
@@ -176,6 +177,7 @@ void SandboxScene::OnStart() {
     pointMat->setProperty("roughness", 1.0f);
     pointMat->setProperty("specular", 0.0f);
     pointMesh->setMaterial(pointMat);
+    pointLightObject->addComponent<angler::ColliderComponent>()->SetSphere();
 
     angler::GameObject* particleObject = CreateGameObject();
     particleObject->setPosition({ 4.0f, 1.0f, 0.0f });

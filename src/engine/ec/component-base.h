@@ -51,7 +51,7 @@ namespace angler
 		virtual void OnDestroy() {}
 
 		//virtual void OnCollisionEnter() {}
-		virtual void OnCollisionStay() {}
+		virtual void OnCollisionStay(GameObject* _other) {}
 		//virtual void OnCollisionExit() {}
 
 		[[nodiscard]] virtual uint64 Id() const = 0;
