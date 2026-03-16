@@ -38,11 +38,29 @@ namespace angler
 
 	struct Component
 	{
+		void Awake();
+		void Start();
+
+		void Update();
+		void FixedUpdate();
+
+		void CollisionStay(GameObject* _other);
+
+		void PreRender();
+		void Render3D();
+		void RenderUI();
+
+		void Destroy();
+
 		virtual void OnAwake() {}
 		virtual void OnStart() {}
 
 		virtual void OnUpdate() {}
 		virtual void OnFixedUpdate() {}
+
+		//virtual void OnCollisionEnter() {}
+		virtual void OnCollisionStay(GameObject* _other) {}
+		//virtual void OnCollisionExit() {}
 
 		virtual void OnPreRender() {}
 		virtual void OnRender3D() {}
@@ -50,9 +68,9 @@ namespace angler
 
 		virtual void OnDestroy() {}
 
-		//virtual void OnCollisionEnter() {}
-		virtual void OnCollisionStay(GameObject* _other) {}
-		//virtual void OnCollisionExit() {}
+		void Enabled();
+		void Disabled();
+		bool isEnabled();
 
 		[[nodiscard]] virtual uint64 Id() const = 0;
 
@@ -61,6 +79,8 @@ namespace angler
 	private :
 		GameObject* m_owner = nullptr;
 		bool m_hasStarted = false;
+		bool m_toDestroy = false;
+		bool m_isEnabled = true;
 
 		friend class GameObject;
 	};

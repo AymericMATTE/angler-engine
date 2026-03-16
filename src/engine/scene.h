@@ -9,6 +9,7 @@ namespace angler
 	class Scene
 	{
 	public :
+		void Awake();
 		void Start();
 		void Update();
 		void FixedUpdate();
@@ -22,6 +23,7 @@ namespace angler
 
 		bool isEnabled();
 
+		virtual void OnAwake() {}
 		virtual void OnStart() {}
 		virtual void OnUpdate() {}
 		virtual void OnFixedUpdate() {}

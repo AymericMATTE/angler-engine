@@ -3,18 +3,24 @@
 #include "application.h"
 
 namespace angler {
+	void Scene::Awake() {
+		OnAwake();
+	}
+
 	void Scene::Start() {
 		if (m_isEnabled == false)
 			return;
 
-		m_started = true;
-
-		OnStart();
 		for (GameObject* gameObject : m_gameObjects) {
 			if (gameObject == nullptr)
 				continue;
 
 			gameObject->Start();
+		}
+
+		if(m_started == false) {
+			OnStart();
+			m_started = true;
 		}
 	}
 

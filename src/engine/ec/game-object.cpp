@@ -16,10 +16,14 @@ namespace angler {
 			m_parent->removeChild(this);
 
 		m_parent = _parent;
-        m_transform.setParent(&_parent->m_transform);
 
-		if(m_parent)
+		if (m_parent) {
 			m_parent->addChild(this);
+			m_transform.setParent(&_parent->m_transform);
+		}
+		else {
+			m_transform.setParent(nullptr);
+		}
 	}
 
 	void GameObject::Enabled() {
@@ -42,11 +46,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			if (component->m_hasStarted)
-				continue;
-
-			component->OnStart();
-			component->m_hasStarted = true;
+			component->Start();
 		}
 	}
 
@@ -55,7 +55,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnUpdate();
+			component->Update();
 		}
 	}
 
@@ -64,7 +64,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnFixedUpdate();
+			component->FixedUpdate();
 		}
 	}
 
@@ -73,7 +73,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnPreRender();
+			component->PreRender();
 		}
 	}
 
@@ -82,7 +82,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnCollisionStay(_other);
+			component->CollisionStay(_other);
 		}
 	}
 
@@ -91,7 +91,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnRender3D();
+			component->Render3D();
 		}
 	}
 
@@ -100,7 +100,7 @@ namespace angler {
 			return;
 
 		for (auto& [id, component] : m_components) {
-			component->OnRenderUI();
+			component->RenderUI();
 		}
 	}
 
@@ -109,172 +109,137 @@ namespace angler {
 			return;
 
 		Application::get().addToDestroy(this);
+        m_toDestroy = true;
 
 		for (GameObject* child : m_childrens) {
 			child->Destroy();
 		}
 
-		if (isEnabled() == false)
-			return;
-
 		for (auto& [id, component] : m_components) {
-			component->OnDestroy();
+			component->Destroy();
 		}
 	}
 
     void GameObject::setPosition(const DirectX::XMFLOAT3& _position) {
-        updateParent();
         m_transform.setPosition(_position);
         m_tick++;
     }
 
     void GameObject::setRotation(const DirectX::XMFLOAT4& _rotation) {
-        updateParent();
         m_transform.setRotation(_rotation);
         m_tick++;
     }
     void GameObject::setRotation(const DirectX::XMFLOAT3& _rotation) {
-        updateParent();
         m_transform.setRotation(_rotation);
     }
 
     void GameObject::setScale(const DirectX::XMFLOAT3& _scale) {
-        updateParent();
         m_transform.setScale(_scale);
         m_tick++;
     }
 
     void GameObject::translate(const DirectX::XMFLOAT3& _delta) {
-        updateParent();
         m_transform.translate(_delta);
         m_tick++;
     }
 
     void GameObject::rotate(const DirectX::XMFLOAT4& _delta) {
-        updateParent();
         m_transform.rotate(_delta);
         m_tick++;
     }
 
     void GameObject::rotate(const DirectX::XMFLOAT3& _rotation) {
-        updateParent();
         m_transform.rotate(_rotation);
         m_tick++;
     }
 
     void GameObject::scale(const DirectX::XMFLOAT3& _factor) {
-        updateParent();
         m_transform.scale(_factor);
         m_tick++;
     }
 
     void GameObject::setLocalPosition(const DirectX::XMFLOAT3& _position) {
-        updateParent();
         m_transform.setLocalPosition(_position);
         m_tick++;
     }
 
     void GameObject::setLocalRotation(const DirectX::XMFLOAT4& _rotation) {
-        updateParent();
         m_transform.setLocalRotation(_rotation);
         m_tick++;
     }
 
     void GameObject::setLocalScale(const DirectX::XMFLOAT3& _scale) {
-        updateParent();
         m_transform.setLocalScale(_scale);
         m_tick++;
     }
 
     void GameObject::localTranslate(const DirectX::XMFLOAT3& _delta) {
-        updateParent();
         m_transform.localTranslate(_delta);
         m_tick++;
     }
 
     void GameObject::localRotate(const DirectX::XMFLOAT4& _delta) {
-        updateParent();
         m_transform.localRotate(_delta);
         m_tick++;
     }
     void GameObject::localRotate(const DirectX::XMFLOAT3& _delta) {
-        updateParent();
         m_transform.localRotate(_delta);
         m_tick++;
     }
 
     void GameObject::localScale(const DirectX::XMFLOAT3& _factor) {
-        updateParent();
         m_transform.localScale(_factor);
         m_tick++;
     }
 
     void GameObject::lookAt(const DirectX::XMFLOAT3& _target, const DirectX::XMFLOAT3& up) {
-        updateParent();
         m_transform.lookAt(_target, up);
         m_tick++;
     }
 
     void GameObject::lookTo(const DirectX::XMFLOAT3& _direction, const DirectX::XMFLOAT3& up) {
-        updateParent();
         m_transform.lookTo(_direction, up);
         m_tick++;
     }
 
     DirectX::XMFLOAT3 GameObject::getPosition() {
-        updateParent();
         return m_transform.getPosition();
     }
 
     DirectX::XMFLOAT4 GameObject::getRotation() {
-        updateParent();
         return m_transform.getRotation();
     }
 
     DirectX::XMFLOAT3 GameObject::getScale() {
-        updateParent();
         return m_transform.getScale();
     }
 
     DirectX::XMFLOAT3 GameObject::getLocalPosition() {
-        updateParent();
         return m_transform.getLocalPosition();
     }
 
     DirectX::XMFLOAT4 GameObject::getLocalRotation() {
-        updateParent();
         return m_transform.getLocalRotation();
     }
 
     DirectX::XMFLOAT3 GameObject::getLocalScale() {
-        updateParent();
         return m_transform.getLocalScale();
     }
 
     DirectX::XMFLOAT4X4 GameObject::getWorldMatrix() {
-        updateParent();
         return m_transform.getWorldMatrix();
     }
 
     DirectX::XMFLOAT3 GameObject::getRight() {
-        updateParent();
         return m_transform.getRight();
     }
 
     DirectX::XMFLOAT3 GameObject::getUp() {
-        updateParent();
         return m_transform.getUp();
     }
 
     DirectX::XMFLOAT3 GameObject::getForward() {
-        updateParent();
         return m_transform.getForward();
-    }
-
-    void GameObject::updateParent() {
-        if (getParent() != nullptr) {
-            m_transform.setParent(&getParent()->m_transform);
-        }
     }
 
 	GameObject::~GameObject() {

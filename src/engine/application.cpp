@@ -115,12 +115,6 @@ namespace angler {
     int Application::run() {
         InputManager::init();
 
-        //REGISTER_SCRIPT(SetupDefaultCameraInputs);
-        //REGISTER_SYSTEM(UpdateDefaultCamera);
-
-        //m_ecs.executeScripts(Script::Lifetime::START); // Start scripts
-        //m_ecs.executeSystems(System::Lifetime::START); // Start systems
-
         Clock clock;
         clock.start();
 
@@ -142,7 +136,7 @@ namespace angler {
             InputManager::update(m_deltaTime, { m_window.getX(), m_window.getY(), m_window.getWidth(), m_window.getHeight() });
 
         // START
-            if(m_activeScene->m_started == false) m_activeScene->Start();
+            m_activeScene->Start();
 
         //UPDATE
             m_activeScene->Update();
@@ -194,7 +188,7 @@ namespace angler {
             m_activeScene->PreRender();
             
             // Update main camera
-            bool foundMainCamera = false;
+            //bool foundMainCamera = false;
         //    m_ecs.foreach<Camera3DComponent, TransformComponent>([this, foundMainCamera](ECS::Entity _entity, Camera3DComponent& _camera3D, TransformComponent& _transform) mutable {
         //        if (!foundMainCamera) {
         //            if (this->m_mainCamera != &_camera3D) {
