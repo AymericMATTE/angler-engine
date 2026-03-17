@@ -27,7 +27,8 @@ namespace angler {
 		void updateObject(ColliderComponent* _obj);
 
 		std::list<ColliderComponent*> checkObjAgainstGrid(ColliderComponent* _obj);
-		bool isColliding(ColliderComponent* _a, ColliderComponent* _b);
+		std::list<ColliderComponent*> checkObjAgainstGrid(GameBounds* _obj);
+		bool isColliding(GameBounds* _a, GameBounds* _b);
 		void resetGrid();
 
 	};

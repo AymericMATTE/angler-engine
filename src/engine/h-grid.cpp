@@ -164,7 +164,7 @@ namespace angler {
 							DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(posVect, DirectX::XMLoadFloat3(&p->m_bounds->sphere->center));
 							DirectX::XMStoreFloat(&dist2, DirectX::XMVector3Dot(diff, diff));
 							if (dist2 <= sqr(_obj->m_bounds->sphere->radius + p->m_bounds->sphere->radius + EPSILON)) {
-								if (isColliding(_obj, p)) {
+								if (isColliding(_obj->m_bounds, p->m_bounds)) {
 									res.push_back(p);
 								}
 							}
@@ -179,20 +179,90 @@ namespace angler {
 		return res;
 	}
 
-	bool HGrid::isColliding(ColliderComponent* _a, ColliderComponent* _b)
+	std::list<ColliderComponent*> HGrid::checkObjAgainstGrid(GameBounds* _obj)
 	{
-		switch (_a->m_bounds->type + _b->m_bounds->type) {
+		float size = MIN_CELL_SIZE;
+		int startLevel = 0;
+		uint32 occupiedLevelsMask = m_occupiedLevelsMask;
+		float diameter = 2.0f * _obj->sphere->radius;
+
+		std::list<ColliderComponent*> res;
+
+		DirectX::XMFLOAT3 pos = _obj->sphere->center;
+		// For each new query, increase time stamp counter
+		m_currentTick++;
+		for (int level = startLevel; level < LEVEL_COUNT;
+			size *= CELL_SCALE_UP, occupiedLevelsMask >>= 1, level++) {
+
+			if (occupiedLevelsMask == 0) break; // No more levels occupied
+			if ((occupiedLevelsMask & 1) == 0) continue; // Current level inoccupied
+
+			// Compute ranges [x1..x2, y1..y2] of cells overlapped on this level. To
+			// make sure objects in neighboring cells are tested, by increasing range by
+			// the maximum object overlap: size * SPHERE_TO_CELL_RATIO
+			float delta = _obj->sphere->radius + size * SPHERE_TO_CELL_RATIO + EPSILON;
+			float ooSize = 1.0f / size;
+
+			int x1 = (int)floorf((pos.x - delta) * ooSize);
+			int y1 = (int)floorf((pos.y - delta) * ooSize);
+			int z1 = (int)floorf((pos.z - delta) * ooSize);
+			int x2 = (int)ceilf((pos.x + delta) * ooSize);
+			int y2 = (int)ceilf((pos.y + delta) * ooSize);
+			int z2 = (int)ceilf((pos.z + delta) * ooSize);
+
+			DirectX::XMVECTOR posVect = DirectX::XMLoadFloat3(&pos);
+
+			// Check all the grid cells overlapped on current level
+			for (int x = x1; x <= x2; x++) {
+				for (int y = y1; y <= y2; y++) {
+					for (int z = z1; z <= z2; z++) {
+						int bucket = GetHashBucketIndex(DirectX::XMINT4(x, y, z, level));
+
+						// Has this hash bucket already been checked for this object?
+						if (m_timeStamp[bucket] == m_currentTick) continue;
+						m_timeStamp[bucket] = m_currentTick;
+
+						// Loop through all objects in the bucket to find nearby objects
+						ColliderComponent* p = m_objectBucket[bucket];
+						while (p) {
+							if (p->m_bounds == _obj) {
+								p = p->next;
+								continue;
+							}
+
+							float dist2;
+							DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(posVect, DirectX::XMLoadFloat3(&p->m_bounds->sphere->center));
+							DirectX::XMStoreFloat(&dist2, DirectX::XMVector3Dot(diff, diff));
+							if (dist2 <= sqr(_obj->sphere->radius + p->m_bounds->sphere->radius + EPSILON)) {
+								if (isColliding(_obj, p->m_bounds)) {
+									res.push_back(p);
+								}
+							}
+
+							p = p->next;
+						}
+					}
+				}
+			}
+		}
+
+		return res;
+	}
+
+	bool HGrid::isColliding(GameBounds* _a, GameBounds* _b)
+	{
+		switch (_a->type + _b->type) {
 		case GameBounds::SPHERE + GameBounds::SPHERE:
-			return Physics::intersects(*_a->m_bounds->sphere, *_b->m_bounds->sphere);
+			return Physics::intersects(*_a->sphere, *_b->sphere);
 			break;
 
 		case GameBounds::SPHERE + GameBounds::BOX:
-			if (_a->m_bounds->type == GameBounds::SPHERE) return Physics::intersects(*_a->m_bounds->sphere, *_b->m_bounds->box);
-			else return Physics::intersects(*_a->m_bounds->box, *_b->m_bounds->sphere);
+			if (_a->type == GameBounds::SPHERE) return Physics::intersects(*_a->sphere, *_b->box);
+			else return Physics::intersects(*_a->box, *_b->sphere);
 			break;
 
 		case GameBounds::BOX + GameBounds::BOX:
-			return Physics::intersects(*_a->m_bounds->box, *_b->m_bounds->box);
+			return Physics::intersects(*_a->box, *_b->box);
 			break;
 			
 		default:
