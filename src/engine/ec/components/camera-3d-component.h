@@ -26,5 +26,6 @@ namespace angler {
         
         friend class Scene;
         friend class Application;
+        friend struct Ray;
     };
 }

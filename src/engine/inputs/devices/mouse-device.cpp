@@ -112,3 +112,9 @@ void Mouse::update(float _delta, Rect _viewport) {
 
 	endUpdate();
 }
+
+void Mouse::getPosition(float* _x, float* _y)
+{
+	*_x = m_lastX;
+	*_y = m_lastY;
+}

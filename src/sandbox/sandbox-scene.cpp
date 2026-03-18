@@ -4,6 +4,7 @@
 #include "engine/application.h"
 #include "engine/resource-manager.h"
 #include "engine/inputs/input-manager.h"
+#include "engine/physics-manager.h"
 
 #include "engine/ec/components/collider-component.h"
 #include "engine/ec/components/default-camera-component.h"
@@ -13,6 +14,7 @@
 #include "engine/ec/components/sprite-component.h"
 #include "engine/ec/components/particle-emitter-component.h"
 #include "engine/ec/components/sprite-animator-3d-component.h"
+#include "engine/ray.h"
 
 #include "render/dx12/objects/static-mesh.h"
 
@@ -147,6 +149,23 @@ void SandboxScene::OnStart() {
         meshComp->setMaterial(mat);
     }
 
+    // Raycast Testing
+    {
+        raycastTastObject = CreateGameObject();
+        angler::MeshComponent* raycastTestMesh = raycastTastObject->addComponent<angler::MeshComponent>();
+
+        angler::Material* raycastTestMat = new angler::Material(renderer.getDefault3DShader());
+        raycastTestMat->setProperty("albedoID", -1);
+        raycastTestMat->setProperty("baseColor", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+        raycastTestMat->setProperty("metallic", 0.0f);
+        raycastTestMat->setProperty("roughness", 1.0f);
+        raycastTestMat->setProperty("specular", 0.5f);
+
+        raycastTestMesh->setMaterial(raycastTestMat);
+        raycastTestMesh->setMesh(angler::ResourceManager::getMesh("mesh-cube"));
+        raycastTastObject->addComponent<angler::ColliderComponent>()->SetBox();
+    }
+
     /*angler::GameObject* spriteObject = CreateGameObject();
     angler::SpriteComponent* sprite = spriteObject->addComponent<angler::SpriteComponent>();
     sprite->setSprite(angler::ResourceManager::getSprite("tex-uv-checker", 1, 1));
@@ -233,4 +252,14 @@ void SandboxScene::OnStart() {
     terrMat->setProperty("roughness", 1.0f);
     terrMat->setProperty("specular", 0.0f);
     terrMesh->setMaterial(terrMat);
+}
+
+void SandboxScene::OnUpdate() {
+    std::list<angler::ColliderComponent*> l = angler::PhysicsManager::get().m_collisionGrid.checkObjAgainstGrid(angler::Ray::raycastFromScreen(InputManager::getMousePos()).bounds);
+    angler::GameObject* closest;
+
+
+    if (true) {
+
+    }
 }

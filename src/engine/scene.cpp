@@ -133,6 +133,11 @@ namespace angler {
 		m_mainCamera->m_isMain = true;
 	}
 
+	Camera3DComponent* Scene::GetMainCamera()
+	{
+		return m_mainCamera;
+	}
+
 	std::vector<GameObject*>& Scene::getGameObjects() {
 		return m_gameObjects;
 	}

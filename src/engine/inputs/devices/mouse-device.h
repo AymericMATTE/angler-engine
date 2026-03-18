@@ -22,6 +22,7 @@ public:
 	static void unlock();
 
 	virtual void update(float _delta, Rect _viewport) override;
+	void getPosition(float* _x, float* _y);
 
 private:
 	static bool m_locked; // TO DO : make it non-static

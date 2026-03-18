@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
-#include "physics.h"
+#include "common/physics.h"
+
 namespace angler{
 	struct Ray
 	{
@@ -14,6 +15,10 @@ namespace angler{
 		~Ray();
 
 		void updateBounds();
+
+		static Ray raycastFromScreen(DirectX::XMFLOAT2 _screenCoord, float _length = 100);
 	};
+
+	
 
 }

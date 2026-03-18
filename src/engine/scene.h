@@ -32,6 +32,7 @@ namespace angler
 
 		GameObject* CreateGameObject();
 		void SetMainCamera(Camera3DComponent* _camera);
+		Camera3DComponent* GetMainCamera();
 
 		std::vector<GameObject*>& getGameObjects();
 

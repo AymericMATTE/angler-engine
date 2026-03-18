@@ -91,3 +91,7 @@ bool InputManager::getActionUp(const char* _action) {
 
     return keyboardValue || mouseValue || gamepadValue;
 }
+
+DirectX::XMFLOAT2 InputManager::getMousePos() {
+
+}

@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <dxmath>
 
 
 struct Action {
@@ -40,6 +41,8 @@ public:
 	static bool getAction(const char* _action);
 	static bool getActionDown(const char* _action);
 	static bool getActionUp(const char* _action);
+
+	static DirectX::XMFLOAT2 getMousePos();
 
 	static void update(float _delta, Rect _viewport);
 
