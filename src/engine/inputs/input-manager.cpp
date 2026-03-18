@@ -93,5 +93,7 @@ bool InputManager::getActionUp(const char* _action) {
 }
 
 DirectX::XMFLOAT2 InputManager::getMousePos() {
-
+    DirectX::XMFLOAT2 pos;
+    m_instance->m_mouse.getPosition(&pos.x, &pos.y);
+    return pos;
 }

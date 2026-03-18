@@ -8,7 +8,8 @@ public:
 	void OnStart();
 	void OnUpdate();
 
-	angler::GameObject* raycastTastObject;
+	angler::GameObject* raycastTestObject;
+	angler::GameObject* raycastVisualObject;
 
 	friend class SceneManager;
 };

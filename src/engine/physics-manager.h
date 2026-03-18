@@ -11,6 +11,7 @@ namespace angler {
 
 		static PhysicsManager& get();
 		GameObject* raycast(Ray* _ray);
+		GameObject* raycastFromMouse();
 
 	private:
 		PhysicsManager();

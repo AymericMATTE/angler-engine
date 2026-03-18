@@ -119,7 +119,6 @@ void SandboxScene::OnStart() {
 
     angler::GameObject* object = CreateGameObject();
     object->setPosition({ 0.0f, 1.0f, -3.0f });
-    object->addComponent<angler::ColliderComponent>()->SetSphere();
     angler::Camera3DComponent* camera = object->addComponent<angler::Camera3DComponent>();
     object->addComponent<angler::DefaultCameraComponent>()->setMode(angler::DefaultCameraComponent::MODE_2);
 
@@ -151,8 +150,8 @@ void SandboxScene::OnStart() {
 
     // Raycast Testing
     {
-        raycastTastObject = CreateGameObject();
-        angler::MeshComponent* raycastTestMesh = raycastTastObject->addComponent<angler::MeshComponent>();
+        raycastTestObject = CreateGameObject();
+        angler::MeshComponent* raycastTestMesh = raycastTestObject->addComponent<angler::MeshComponent>();
 
         angler::Material* raycastTestMat = new angler::Material(renderer.getDefault3DShader());
         raycastTestMat->setProperty("albedoID", -1);
@@ -163,7 +162,19 @@ void SandboxScene::OnStart() {
 
         raycastTestMesh->setMaterial(raycastTestMat);
         raycastTestMesh->setMesh(angler::ResourceManager::getMesh("mesh-cube"));
-        raycastTastObject->addComponent<angler::ColliderComponent>()->SetBox();
+        raycastTestObject->addComponent<angler::ColliderComponent>()->SetBox();
+
+        raycastVisualObject = CreateGameObject();
+        angler::MeshComponent* raycastVisualMesh = raycastVisualObject->addComponent<angler::MeshComponent>();
+        angler::Material* raycastVisualMat = new angler::Material(renderer.getDefault3DShader());
+        raycastVisualMat->setProperty("albedoID", -1);
+        raycastVisualMat->setProperty("baseColor", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+        raycastVisualMat->setProperty("metallic", 0.0f);
+        raycastVisualMat->setProperty("roughness", 1.0f);
+        raycastVisualMat->setProperty("specular", 0.5f);
+
+        raycastVisualMesh->setMaterial(raycastVisualMat);
+        raycastVisualMesh->setMesh(angler::ResourceManager::getMesh("mesh-cube"));
     }
 
     /*angler::GameObject* spriteObject = CreateGameObject();
@@ -197,7 +208,7 @@ void SandboxScene::OnStart() {
     pointMat->setProperty("roughness", 1.0f);
     pointMat->setProperty("specular", 0.0f);
     pointMesh->setMaterial(pointMat);
-    pointLightObject->addComponent<angler::ColliderComponent>()->SetSphere();
+    //pointLightObject->addComponent<angler::ColliderComponent>()->SetSphere();
 
     angler::Material* textureMat = new angler::Material(renderer.getDefault3DShader());
     textureMat->setProperty("albedoID", angler::ResourceManager::getTexture("tex-wooden-plank")->getId()); // No texture
@@ -255,11 +266,22 @@ void SandboxScene::OnStart() {
 }
 
 void SandboxScene::OnUpdate() {
-    std::list<angler::ColliderComponent*> l = angler::PhysicsManager::get().m_collisionGrid.checkObjAgainstGrid(angler::Ray::raycastFromScreen(InputManager::getMousePos()).bounds);
-    angler::GameObject* closest;
+    angler::GameObject* object = angler::PhysicsManager::get().raycastFromMouse();
+    raycastTestObject->setLocalScale({ 1.0f , 1.0f , 1.0f });
 
+    angler::Ray* ray = new angler::Ray({ 0, 0, 0 }, { 1, 0, 0 }, 100);
+    angler::Ray::raycastFromScreen(ray, InputManager::getMousePos()); 
+    ray->updateBounds();
+    raycastVisualObject->setPosition({ ray->start.x + ray->direction.x * 2, ray->start.y + ray->direction.y * 2, ray->start.z + ray->direction.z * 2 });
+    //raycastVisualObject->setScale({ ray->bounds->box->extents.xmF.x * 20, ray->bounds->box->extents.xmF.y * 20, ray->bounds->box->extents.xmF.z * 20 });
+    //raycastVisualObject->lookTo(ray->bounds->box->axes[2].xmF);
 
-    if (true) {
+    delete ray;
 
+    if (object != nullptr) {
+        if (object == raycastTestObject) {
+            raycastTestObject->setLocalScale({ 1.5f , 1.5f , 1.5f });
+        }
     }
+
 }

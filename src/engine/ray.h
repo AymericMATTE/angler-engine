@@ -16,7 +16,8 @@ namespace angler{
 
 		void updateBounds();
 
-		static Ray raycastFromScreen(DirectX::XMFLOAT2 _screenCoord, float _length = 100);
+		//static Ray& raycastFromScreen(DirectX::XMFLOAT2 _screenCoord, float _length = 100);
+		static void raycastFromScreen(Ray* _out, DirectX::XMFLOAT2 _screenCoord, float _length = 100);
 	};
 
 	

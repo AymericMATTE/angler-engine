@@ -13,9 +13,9 @@ namespace angler
 	};
 
 	struct Settings {
-		int window_width = 960;
-		int window_height = 540;
-		bool window_fullscreen = false;
+		int window_width = 1920;
+		int window_height = 1080;
+		bool window_fullscreen = true;
 
 		bool vsync = true;
 		float render_scale = 1.0f;
